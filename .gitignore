@@ -1,0 +1,83 @@
+# Node.js
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Compiled output
+**/dist/
+**/build/
+
+# Logs
+**/logs/
+*.log
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Editor-specific
+.idea/
+.vscode/
+
+# Dependency lock files
+**/package-lock.json
+**/yarn.lock
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Compiled Tailwind CSS files
+**/public/assets/css/
+
+# Cache and build files
+**/.cache/
+**/build/
+**/.cache-loader/
+**/.next/
+**/out/
+**/tmp/
+
+# Jest testing framework
+**/coverage/
+
+# NPM cache directory
+.npm
+
+# Yarn cache directory
+.yarn
+
+# Parcel cache directory
+.cache/
+
+# Pnpm store directory
+pnpm-lock.yaml
+.pnpm/
+
+# Windows image file caches
+ehthumbs.db
+ehthumbs_vista.db
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# macOS
+.DS_Store
+
+# Node.js Logs
+**/node_modules/.cache/
+
+# Yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
