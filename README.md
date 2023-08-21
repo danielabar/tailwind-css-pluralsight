@@ -8,6 +8,9 @@
   - [Using TailwindCSS](#using-tailwindcss)
     - [Building Your CSS](#building-your-css)
     - [Using Layers](#using-layers)
+    - [Adding Reusable Classes](#adding-reusable-classes)
+  - [TailwindCSS Styles](#tailwindcss-styles)
+    - [Layout](#layout)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -535,3 +538,237 @@ npm install npm-run-all --save-dev
 ```
 
 ### Using Layers
+
+Example, might want to use h1, h2 tags in various places, add one within header element:
+
+```htm
+<header>
+  <h1>Testing H1 in Header</h1>
+  <div id="site-name" class="text-2xl font-bold text-amber-300 p-2 whitespace-nowrap">
+    <a href="/"><i class="fas fa-film"></i> The Bechdel Test</a>
+  </div>
+```
+
+Renders very small relative to everything else:
+
+![h1 small](doc-images/h1-small.png "h1 small")
+
+It's small because tailwind automatically added a css reset.
+
+We can add our own basic styles for some elements in `app/src/css`:
+
+```css
+/* module3/src/app.src.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+h1 {
+  font-weight: bold;
+  font-size: 2rem;
+}
+```
+
+Now header looks like this using our styles.
+
+![h1 large](doc-images/h1-large.png "h1 large")
+
+Could repeat the definitions for h2 through 4:
+
+```css
+/* module3/src/app.src.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+h1 {
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+h2 {
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+h3 {
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+h4 {
+  font-weight: bold;
+  font-size: 2rem;
+}
+```
+
+Then check what tailwind generated, it just appended our header styles at the end:
+
+```css
+/* module3/public/css/app.css */
+
+/* tailwind reset including headers */
+/*
+Remove the default font size and weight for headings.
+*/
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/* Out custom header styles */
+h1 {
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+h2 {
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+h3 {
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+h4 {
+  font-weight: bold;
+  font-size: 2rem;
+}
+```
+
+But what we really want is to tell tailwind that these styles are part of the `base`, which allows us to *inject* these classes in the correct location within the css:
+
+```css
+/* module3/src/app.src.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  h1 {
+    font-weight: bold;
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-weight: bold;
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+
+  h4 {
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+}
+```
+
+Now the generated file has these in the middle, at the base section.
+
+However, how to make use of this wrt tailwind classes?
+
+### Adding Reusable Classes
+
+`@apply` directive allows for re-use of tailwindcss classes in our custom definitions. i.e. we can use the same design language as tailwind, when developing our own custom styles.
+
+Notice tailwindcss vscode extension intellisense:
+
+![intellisense](doc-images/intellisense.png "intellisense")
+
+```css
+/* module3/src/app.src.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  h1 {
+    @apply font-bold text-2xl;
+  }
+
+  h2 {
+    @apply font-bold text-xl;
+  }
+
+  h3 {
+    @apply font-bold text-lg;
+  }
+
+  h4 {
+    @apply text-lg;
+  }
+}
+```
+
+Looking at what tailwind generated, let's focus on h1:
+
+```css
+/* module3/public/css/app.css */
+
+/* ~line 91: reset */
+/*
+Remove the default font size and weight for headings.
+*/
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/* ~line 318: reset */
+/*
+Removes the default spacing and border for appropriate elements.
+*/
+
+blockquote,
+dl,
+dd,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+hr,
+figure,
+p,
+pre {
+  margin: 0;
+}
+
+/* ~line 437: our custom base */
+h1 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 700;
+}
+```
+
+Notice tailwind css class `text-2xl` translates to specifying both a line-height and font-size.
+
+**When to use this technique of building custom classes vs simply using tailwind classes in html?** Should be the exception, not the rule.
+
+If using framework like React, Vue, etc - tailwind creator suggests building a component (eg: button) in those tools rather than using apply.
+
+## TailwindCSS Styles
+
+Continue with code examples in `module3`.
+
+### Layout
