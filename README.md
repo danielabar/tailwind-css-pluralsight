@@ -11,6 +11,7 @@
     - [Adding Reusable Classes](#adding-reusable-classes)
   - [TailwindCSS Styles](#tailwindcss-styles)
     - [Layout](#layout)
+    - [Units](#units)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -772,3 +773,101 @@ If using framework like React, Vue, etc - tailwind creator suggests building a c
 Continue with code examples in `module3`.
 
 ### Layout
+
+For example, can add inline-block to h1:
+
+```htm
+<h1 class="inline-block">Testing H1 in Header</h1>
+```
+
+Could add any "flex-..." or "grid..." class, eg:
+
+![flex classes](doc-images/flex-classes.png "flex classes")
+![grid classes](doc-images/grid-classes.png "grid classes")
+
+Now would like to improve display of header and main section:
+
+![html structure](doc-images/html-structure.png "html structure")
+
+Add a new div to wrap header and main section, then add class flex:
+
+![flex](doc-images/flex.png "flex")
+
+Now sections are in flex container displayed in columns:
+
+![site columns](doc-images/site-columns.png "site columns")
+
+Tailwind added:
+
+```css
+.flex {
+  display: flex;
+}
+```
+
+To get more space between columns, use `gap-{n}` classes (works with both flex and grid).
+
+![gap classes](doc-images/gap-classes.png "gap classes")
+
+For example, use `gap-1`:
+
+```htm
+<div class="flex gap-1">
+  <header>...</header>
+  <section>...</section>
+</div>
+```
+
+Adds a row-gap and column-gap of 0.25rem
+
+```css
+.gap-1 {
+  gap: 0.25rem;
+}
+
+.flex {
+  display: flex;
+}
+```
+
+Can see a small space between the columns now:
+
+![site column gap](doc-images/site-column-gap.png "site column gap")
+
+Now let's work on main section that displays all the movies. Has a div that displays the results, where each child has a class of film currently. Want to get the films laid out in a grid. Use `grid` class, together with helpers to define how many columns, in this case `grid-cols-2`:
+
+![grid cols 2](doc-images/grid-cols-2.png "grid cols 2")
+
+Tailwind adds:
+
+```css
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid {
+  display: grid;
+}
+```
+
+Now movies display in a two column grid:
+
+![movies grid](doc-images/movies-grid.png "movies grid")
+
+Easy enough to change it to `grid-cols-5` to increase number of columns from 2 to 5. Can also use `gap-{n}` to space things out:
+
+```htm
+<div id="results" class="grid grid-cols-5 gap-2">
+```
+
+![movies col 5](doc-images/movies-col-5.png "movies col 5")
+
+Now leave it at three columns with no gap:
+
+```htm
+<div id="results" class="grid grid-cols-3">
+```
+
+Note that since the grid classes are defined on the parent element, could have JavaScript swap out the child elements (eg: select a different year for movies), and the grid layout is still maintained.
+
+### Units
