@@ -138,7 +138,7 @@ function enablePaging() {
 }
 
 function formatFilm(film) {
-  return `<div class="film">
+  return `<div class="h-72">
     <img src="${film.posterUrl}" alt="${film.title}" />
     <div class="title">${film.title}</div>
     <div class="info">${film.year}</div>

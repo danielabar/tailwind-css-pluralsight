@@ -871,3 +871,186 @@ Now leave it at three columns with no gap:
 Note that since the grid classes are defined on the parent element, could have JavaScript swap out the child elements (eg: select a different year for movies), and the grid layout is still maintained.
 
 ### Units
+
+Tailwind is consistent with units, eg: `gap-1` is 0.25rem (aka 4px).
+
+Anytime there's a dash followed by a number, there's going to be consistent units
+
+Frequently used are padding `p-{n}` and margin `m-{n}`.
+
+`m1` and `p1` are `margin: 0.25rem;` and `padding: 0.25rem;` respectively.
+
+Width `w-{n}` and `h-{n}` works the same way, eg: `w-1` is `width: 0.25rem;` and `h-1` is `height: 0.25rem;`
+
+Available numbers are 0 - 12, then it starts skipping some numbers:
+
+![numbers](doc-images/numbers.png "numbers")
+
+Largest available number is `m-96` (24rem, 384px, given a root font size of 16px).
+
+Units are 1/4 rem per number. i.e. 96/4 = 24.
+
+Padding and margin also support cardinal directions.
+
+Eg `pl-1` generates `padding-left: 0.25rem;`, `pr-1` is for padding-right, `pt-1` for padding-top, and `pb-1` for padding-bottom.
+
+Also have `px-1`, which generates: (i.e. control the x-axis)
+
+```css
+.px-1 {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+```
+
+and `py-1`, which generates: (i.e. control the y-axis)
+
+```css
+.py-1 {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+```
+
+Margin has the same x/y variations.
+
+Update `<header>` element to have `p-2`, i.e. `padding: 0.5rem` (8px given 16px root font size), space it out so its not right up at top right corner of container:
+
+```htm
+<header class="p-2">
+  <!-- ... -->
+</header>
+```
+
+![header-p2](doc-images/header-p2.png "header-p2")
+
+If you want the top padding to be a different value than the rest, first specify top padding value, then the rest. IMPORTANT: first the top value that should be different, then the rst:
+
+```htm
+<header class="pt-1 p-2">
+  <!-- ... -->
+</header>
+```
+
+Generates:
+
+```css
+.pt-1 {
+  padding-top: 0.25rem;
+}
+
+.p-2 {
+  padding: 0.5rem;
+}
+```
+
+Expanding the `padding` in dev tools, can see that the padding-top is overridden by earlier definition of pt-1:
+
+![padding top override](doc-images/padding-top-override.png "padding top override")
+
+More common would be to specify x and y (i.e. consisting padding for left and right, and consistent padding for top and bottom):
+
+```htm
+<header class="py-1 px-2">
+  <!-- ... -->
+</header>
+```
+
+Generates:
+
+```css
+.py-1 {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.px-2 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+```
+
+Recall the Tailwind config is also looking at JavaScript files (configured in `content` section):
+
+```javascript
+// module3/tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+
+Looking at `results.js` (already provided by instructor as part of exercise files), it has a template that outputs html for each film:
+
+```javascript
+// module3/src/results.js
+// ...
+function formatFilm(film) {
+  return `<div class="film">
+    <img src="${film.posterUrl}" alt="${film.title}" />
+    <div class="title">${film.title}</div>
+    <div class="info">${film.year}</div>
+    <div class="info">${film.rating}</div>
+    <div class="info">Passed: ${film.passed}</div>
+    <div class="info">Reason: ${film.reason}</div>
+    <div class="info">Budget: $${film.budget.toLocaleString("en-US")}</div>
+    <div class="info">Domestic Gross: $${film.domesticGross.toLocaleString(
+      "en-US"
+    )}</div>
+    <div class="info">International Gross: $${film.internationalGross.toLocaleString(
+      "en-US"
+    )}</div>
+    <p>${film.overview}</p>
+  </div>`;
+}
+```
+
+This markup can also be edited to use TailwindCSS classes, and the Tailwind build will generate corresponding css.
+
+Eg: Remove the `film` class from old sass build, replace with `h-72` for a height of 72 * 0.25 = 18rem;
+
+```javascript
+// module3/src/results.js
+// ...
+function formatFilm(film) {
+  return `<div class="h-72">`
+  // ...
+}
+```
+
+Other height options are `h-full` for full height (relative to its parent element), generates:
+
+```css
+.h-full {
+  height: 100%;
+}
+```
+
+`h-screen` for full viewport height, generates:
+
+```css
+.h-screen {
+  height: 100vh;
+}
+```
+
+vh units: Viewport height - relative unit that represents percentage of viewport's height, so 100vh is full height of user's viewport.
+
+Also have `min-h-screen` which generates:
+
+```css
+.min-h-screen {
+  min-height: 100vh;
+}
+```
+
+This ensures element takes up at least the full height of the viewport, but can also expand further if content inside the element requires more space.
+
+Left at 4:06
