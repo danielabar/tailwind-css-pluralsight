@@ -12,12 +12,26 @@
   - [TailwindCSS Styles](#tailwindcss-styles)
     - [Layout](#layout)
     - [Units](#units)
+    - [Colors](#colors)
+    - [Other Utility Classes](#other-utility-classes)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # Tailwind CSS Pluralsight
 
 My notes from Pluralsight course on [TailwindCSS Fundamentals](https://app.pluralsight.com/library/courses/tailwind-css-3-fundamentals/table-of-contents)
+
+Running the exercises, from Module 3 onwards:
+
+```bash
+# terminal 1
+cd module3
+npm run dev
+
+# terminal 2
+cd module3/public
+npx live-server
+```
 
 ## Intro
 
@@ -1053,4 +1067,159 @@ Also have `min-h-screen` which generates:
 
 This ensures element takes up at least the full height of the viewport, but can also expand further if content inside the element requires more space.
 
-Left at 4:06
+Add wrapper div around image to make it quite large, then wrap all the other information so it can appear to the right of the image.
+
+Note use of `flex-none` and `relative` (`absolute` is also available), `overflow-hidden`:
+
+```javascript
+// module3/src/results.js
+function formatFilm(film) {
+  return `<div class="h-72 overflow-hidden">
+    <div class="w-48 flex-none relative">
+      <img src="${film.posterUrl}" alt="${film.title}" class="absolute"/>
+    </div>
+    <div class="ml-48 p-2">
+      <div class="title">${film.title}</div>
+      <div class="info">${film.year}</div>
+      <div class="info">${film.rating}</div>
+      <div class="info">Passed: ${film.passed}</div>
+      <div class="info">Reason: ${film.reason}</div>
+      <div class="info">Budget: $${film.budget.toLocaleString("en-US")}</div>
+      <div class="info">Domestic Gross: $${film.domesticGross.toLocaleString(
+        "en-US"
+      )}</div>
+      <div class="info">International Gross: $${film.internationalGross.toLocaleString(
+        "en-US"
+      )}</div>
+      <p>${film.overview}</p>
+    </div>
+  </div>`;
+}
+```
+
+### Colors
+
+Update header to have a different color.
+
+Tailwind ships with a standard set of colors that appear consistently across classes, eg: amber, blue, grey, stone, slate, etc.
+
+![amber color](doc-images/amber-color.png "amber color")
+
+![blue color](doc-images/blue-color.png "blue color")
+
+Each number has a variation for depth of that color, eg: text-slate-50, text-slate-100, ...text-slate-900:
+
+![slate color](doc-images/slate-color.png "slate color")
+
+(later will learn how to specify our own colors)
+
+Example: `text-slate-300` would generate:
+
+```css
+.text-slate-300 {
+  --tw-text-opacity: 1;
+  color: rgb(203 213 225 / var(--tw-text-opacity));
+}
+```
+
+Note that white and black don't have have depth variations, so it would just be `class="text-white"` or `class="text-black"`, going with text-white for header:
+
+```htm
+<!-- module3/public/index.html -->
+<body class="bg-amber-800">
+    <div id="container" class="container bg-gray-100 mx-auto">
+      <div class="flex gap-1">
+        <header class="py-1 px-2 text-white">
+          <div id="site-name" class="text-2xl font-bold text-amber-300 p-2 whitespace-nowrap">
+            <a href="/"><i class="fas fa-film"></i> The Bechdel Test</a>
+          </div>
+          <section id="menu">
+```
+
+Generates:
+
+```css
+.text-white {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+```
+
+We can also set the background color (need contrast for the white text), example: bg-amber-400 (to distinguish from existing background bg-amber-800 on body element):
+
+```htm
+<!-- module3/public/index.html -->
+<body class="bg-amber-800">
+    <div id="container" class="container bg-gray-100 mx-auto">
+      <div class="flex gap-1">
+        <header class="py-1 px-2 text-white bg-amber-400">
+          <div id="site-name" class="text-2xl font-bold text-amber-800 p-2 whitespace-nowrap">
+            <a href="/"><i class="fas fa-film"></i> The Bechdel Test</a>
+          </div>
+          <section id="menu">
+```
+
+Can start to see distinguishing of sections based on different background colors
+
+![section colors](doc-images/section-colors.png "section colors")
+
+Adjust header text to dark grey so its easier to read against amber background:
+
+```htm
+<body class="bg-amber-800">
+    <div id="container" class="container bg-gray-100 mx-auto">
+      <div class="flex gap-1">
+        <header class="py-1 px-2 text-gray-600 bg-amber-400">
+          <div id="site-name" class="text-2xl font-bold text-amber-800 p-2 whitespace-nowrap">
+            <a href="/"><i class="fas fa-film"></i> The Bechdel Test</a>
+          </div>
+          <section id="menu">
+```
+
+![header text grey](doc-images/header-text-grey.png "header text grey")
+
+Background cover: `bg-cover` together with inline style for background-image. If only need something once, not worth making a custom class for it:
+
+```htm
+<!-- module3/public/index.html -->
+<section id="main" class="bg-cover" style="background-image: url(img/bg-seats.jpg);">
+```
+
+Generates:
+
+```css
+element.style {
+  background-image: url(img/bg-seats.jpg);
+}
+
+.bg-cover {
+  background-size: cover;
+}
+```
+
+![bg img](doc-images/bg-img.png "bg img")
+
+But having background image makes movie text descriptions harder to read. Fix this in results javascript that renders template for each movie. Add light grey background `bg-gray-100` for each movie section, but use `/` syntax to specify some percent of transparency so that the background image will still show through:
+
+![transp](doc-images/transp.png "transp")
+
+```javascript
+function formatFilm(film) {
+  return `<div class="h-72 overflow-hidden bg-gray-100/70">
+  ...
+}
+```
+
+Generates:
+
+```css
+.bg-gray-100\/70 {
+  rgb(243 244 246 / 0.7);
+}
+```
+
+![movie transp](doc-images/movie-transp.png "movie transp")
+
+Now the background image of movie seats shows through enough to give an idea of a movie website, but it doesn't get in the way of reading the text of movie descriptions.
+
+### Other Utility Classes
