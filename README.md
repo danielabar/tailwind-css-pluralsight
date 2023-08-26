@@ -14,6 +14,9 @@
     - [Units](#units)
     - [Colors](#colors)
     - [Other Utility Classes](#other-utility-classes)
+    - [Fonts](#fonts)
+      - [Customize Theme](#customize-theme)
+    - [States and Variants](#states-and-variants)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -1223,3 +1226,342 @@ Generates:
 Now the background image of movie seats shows through enough to give an idea of a movie website, but it doesn't get in the way of reading the text of movie descriptions.
 
 ### Other Utility Classes
+
+Some odds and ends that don't fit well into any other section.
+
+Eg: Add `rounded` to each movie result:
+
+```javascript
+// module3/src/results.js
+function formatFilm(film) {
+  return `<div class="h-72 overflow-hidden bg-gray-100/50 rounded">
+    <div class="w-48 flex-none relative">
+      <img src="${film.posterUrl}" alt="${film.title}" class="absolute"/>
+    </div>
+    <div class="ml-48 p-2">
+      <div class="title">${film.title}</div>
+      <div class="info">${film.year}</div>
+      <div class="info">${film.rating}</div>
+      <div class="info">Passed: ${film.passed}</div>
+      <div class="info">Reason: ${film.reason}</div>
+      <div class="info">Budget: $${film.budget.toLocaleString("en-US")}</div>
+      <div class="info">Domestic Gross: $${film.domesticGross.toLocaleString(
+        "en-US"
+      )}</div>
+      <div class="info">International Gross: $${film.internationalGross.toLocaleString(
+        "en-US"
+      )}</div>
+      <p>${film.overview}</p>
+    </div>
+  </div>`;
+}
+```
+
+Rounded variation, eg: `rounded-t` to only round the top
+
+![rounded](doc-images/rounded.png "rounded")
+
+Using just `rounded` generates:
+
+```css
+.rounded {
+  border-radius: 0.25rem;
+}
+```
+
+Let's use `rounded-lg` for more of an effect. Generates:
+
+```css
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+```
+
+Add some margin around each film to space out with `m-1`:
+
+```javascript
+// module3/src/results.js
+function formatFilm(film) {
+  return `<div class="h-72 overflow-hidden bg-gray-100/50 rounded-lg m-1">
+    <div class="w-48 flex-none relative">
+      <img src="${film.posterUrl}" alt="${film.title}" class="absolute"/>
+    </div>
+    ...
+}
+```
+
+Still needs some work but its taking shape:
+
+![rounded and margin](doc-images/rounded-and-margin.png "rounded and margin")
+
+Now work on styling text within each movie section.
+
+Add `text-2xl` to movie title:
+
+```javascript
+// module3/src/results.js
+function formatFilm(film) {
+  return `<div class="h-72 overflow-hidden bg-gray-100/50 rounded-lg m-1">
+    <div class="w-48 flex-none relative">
+      <img src="${film.posterUrl}" alt="${film.title}" class="absolute"/>
+    </div>
+    <div class="ml-48 p-2">
+      <div class="text-2xl">${film.title}</div>
+      ...
+}
+```
+
+Generates:
+
+```css
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+```
+
+Which is a little big, makes some titles wrap. Instead use `text-xl` and `font-bold` for emphasis:
+
+```javascript
+// module3/src/results.js
+function formatFilm(film) {
+  return `<div class="h-72 overflow-hidden bg-gray-100/50 rounded-lg m-1">
+    <div class="w-48 flex-none relative">
+      <img src="${film.posterUrl}" alt="${film.title}" class="absolute"/>
+    </div>
+    <div class="ml-48 p-2">
+      <div class="text-xl font-bold">${film.title}</div>
+      ...
+}
+```
+
+Then get rid of all the old `class="info"` and replace with spans wrapping each label to style each individual label part of the film. Also use `w-24` to ensure the span wrapping the label will be at a fixed size. But also need to add `inline-block` for width to take effect on inline element:
+
+```javascript
+function formatFilm(film) {
+  return `<div class="h-72 overflow-hidden bg-gray-100/50 rounded-lg m-1">
+    <div class="w-48 flex-none relative">
+      <img src="${film.posterUrl}" alt="${film.title}" class="absolute"/>
+    </div>
+    <div class="ml-48 p-2">
+      <div class="text-xl font-bold">${film.title}</div>
+      <div><span class="font-bold w-24 inline-block">Year:</span>${film.year}</div>
+      <div><span class="font-bold w-24 inline-block">Rating:</span>${film.rating}</div>
+      <div><span class="font-bold w-24 inline-block">Passed:</span>${film.passed}</div>
+      <div><span class="font-bold w-24 inline-block">Reason:</span>${film.reason}</div>
+      <div><span class="font-bold w-24 inline-block">Budget:</span>$${film.budget.toLocaleString("en-US")}</div>
+      <div><span class="font-bold w-24 inline-block">Dom. Gross:</span>$${film.domesticGross.toLocaleString(
+        "en-US"
+      )}</div>
+      <div><span class="font-bold w-24 inline-block">Int'l Gross:</span>$${film.internationalGross.toLocaleString(
+        "en-US"
+      )}</div>
+      <p>${film.overview}</p>
+    </div>
+  </div>`;
+}
+```
+
+See how this makes the label and value pairs line up:
+
+![label span](doc-images/label-span.png "label span")
+
+### Fonts
+
+If we don't specify any font explicitly, the default font family provided by TailwindCSS is `font-sans`:
+
+```css
+html {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+```
+
+Font classes provided by Tailwind include:
+
+![fonts](doc-images/fonts.png "fonts")
+
+Let's update film title to `font-serif`:
+
+```javascript
+function formatFilm(film) {
+  return `<div class="h-72 overflow-hidden bg-gray-100/50 rounded-lg m-1">
+    <div class="w-48 flex-none relative">
+      <img src="${film.posterUrl}" alt="${film.title}" class="absolute"/>
+    </div>
+    <div class="ml-48 p-2">
+      <div class="text-xl font-bold font-serif">${film.title}</div>
+    ...
+}
+```
+
+Generates:
+
+```css
+.font-serif {
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+```
+
+Can see the title is now a serif font:
+
+![font serif](doc-images/font-serif.png "font serif")
+
+#### Customize Theme
+
+Change to use [Roboto](https://fonts.google.com/specimen/Roboto) from Google Fonts. Add it to our css source:
+
+```css
+/* module3/src/app.src.css */
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;700&display=swap");
+```
+
+This just makes it available, but it won't show up in the styles yet.
+
+To do this, need to customize the Tailwind theme in `tailwind.config.js`.
+
+`theme` is to define your own (will do later). `extend` is to simply override some of the values from the built-in theme. This is where we'll specify our custom font.
+
+So we're telling Tailwind that the `sans` font family should first use Roboto, then spread the default theme's font family sans definitions. This means we need to require the default theme:
+
+```javascript
+// module3/tailwind.config.js
+const defaultTheme = require("tailwindcss/defaultTheme")
+
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ["Roboto", ...defaultTheme.fontFamily.sans]
+      }
+    },
+  },
+  plugins: [],
+}
+```
+
+At this point, the `npm run dev` build will fail because it can't find tailwindcss/defaultTheme:
+
+```
+Rebuilding...
+Error: Cannot find module 'tailwindcss/defaultTheme'
+Require stack:
+- /Users/dbaron/projects/courses/tailwind-css-pluralsight/module3/tailwind.config.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1077:15)
+    at Function.resolve (node:internal/modules/cjs/helpers:127:19)
+    at _resolve (/Users/dbaron/.npm/_npx/bc7494899bbce1ca/node_modules/jiti/dist/jiti.js:1:250196)
+    at jiti (/Users/dbaron/.npm/_npx/bc7494899bbce1ca/node_modules/jiti/dist/jiti.js:1:252505)
+    at /Users/dbaron/projects/courses/tailwind-css-pluralsight/module3/tailwind.config.js:1:97
+    at evalModule (/Users/dbaron/.npm/_npx/bc7494899bbce1ca/node_modules/jiti/dist/jiti.js:1:255202)
+    at jiti (/Users/dbaron/.npm/_npx/bc7494899bbce1ca/node_modules/jiti/dist/jiti.js:1:253130)
+    at /Users/dbaron/.npm/_npx/bc7494899bbce1ca/node_modules/tailwindcss/lib/lib/load-config.js:37:30
+    at loadConfig (/Users/dbaron/.npm/_npx/bc7494899bbce1ca/node_modules/tailwindcss/lib/lib/load-config.js:39:6)
+    at Object.loadConfig (/Users/dbaron/.npm/_npx/bc7494899bbce1ca/node_modules/tailwindcss/lib/cli/build/plugin.js:135:49) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/dbaron/projects/courses/tailwind-css-pluralsight/module3/tailwind.config.js'
+  ]
+}
+```
+
+Issue is up to this point, we've been using npx and haven't actually installed tailwind into the project package.json. Recall currently package.json in module3 has:
+
+```json
+"dev:css": "npx tailwindcss -i ./src/app.src.css -o ./public/css/app.css -w",
+```
+
+Fix by installing it and saving to project dev dependencies:
+
+```bash
+cd module3
+npm i tailwindcss -D
+```
+
+This adds to package.json:
+
+```json
+"tailwindcss": "^3.3.3"
+```
+
+Now can update the run script to use tailwind directly rather than via npx:
+
+```json
+"dev:css": "tailwindcss -i ./src/app.src.css -o ./public/css/app.css -w",
+```
+
+Run it again - should work this time:
+
+```bash
+npm run dev
+```
+
+Now Roboto gets added to the generated css, in html font-family definition:
+
+```css
+/* module3/public/css/app.css */
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;700&display=swap");
+
+/* ... */
+
+html {
+  line-height: 1.5;
+  /* 1 */
+  -webkit-text-size-adjust: 100%;
+  /* 2 */
+  -moz-tab-size: 4;
+  /* 3 */
+  -o-tab-size: 4;
+     tab-size: 4;
+  /* 3 */
+  font-family: Roboto, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  /* 4 */
+  font-feature-settings: normal;
+  /* 5 */
+  font-variation-settings: normal;
+  /* 6 */
+}
+
+/* ... */
+```
+
+And all the fonts on our site that were using default `sans` are now Roboto.
+
+Note there is an easier way to use a custom font without going through all the trouble of customizing theme:
+
+Could also have just specified it in base layer in app css src:
+
+```css
+/* module3/src/app.src.css */
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: Roboto;
+  }
+  h1 {
+    @apply font-bold text-2xl;
+  }
+
+  h2 {
+    @apply font-bold text-xl;
+  }
+
+  h3 {
+    @apply font-bold text-lg;
+  }
+
+  h4 {
+    @apply text-lg;
+  }
+}
+```
+
+### States and Variants
