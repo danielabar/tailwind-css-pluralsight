@@ -138,21 +138,21 @@ function enablePaging() {
 }
 
 function formatFilm(film) {
-  return `<div class="h-72 overflow-hidden bg-gray-100/50">
+  return `<div class="h-72 overflow-hidden bg-gray-100/50 rounded-lg m-1">
     <div class="w-48 flex-none relative">
       <img src="${film.posterUrl}" alt="${film.title}" class="absolute"/>
     </div>
     <div class="ml-48 p-2">
-      <div class="title">${film.title}</div>
-      <div class="info">${film.year}</div>
-      <div class="info">${film.rating}</div>
-      <div class="info">Passed: ${film.passed}</div>
-      <div class="info">Reason: ${film.reason}</div>
-      <div class="info">Budget: $${film.budget.toLocaleString("en-US")}</div>
-      <div class="info">Domestic Gross: $${film.domesticGross.toLocaleString(
+      <div class="text-xl font-bold font-serif">${film.title}</div>
+      <div><span class="font-bold w-24 inline-block">Year:</span>${film.year}</div>
+      <div><span class="font-bold w-24 inline-block">Rating:</span>${film.rating}</div>
+      <div><span class="font-bold w-24 inline-block">Passed:</span>${film.passed}</div>
+      <div><span class="font-bold w-24 inline-block">Reason:</span>${film.reason}</div>
+      <div><span class="font-bold w-24 inline-block">Budget:</span>$${film.budget.toLocaleString("en-US")}</div>
+      <div><span class="font-bold w-24 inline-block">Dom. Gross:</span>$${film.domesticGross.toLocaleString(
         "en-US"
       )}</div>
-      <div class="info">International Gross: $${film.internationalGross.toLocaleString(
+      <div><span class="font-bold w-24 inline-block">Int'l Gross:</span>$${film.internationalGross.toLocaleString(
         "en-US"
       )}</div>
       <p>${film.overview}</p>
