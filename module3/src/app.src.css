@@ -21,3 +21,6 @@
     @apply text-lg;
   }
 }
+
+@layer utilities {
+}

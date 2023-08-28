@@ -695,9 +695,55 @@ But what we really want is to tell tailwind that these styles are part of the `b
 
 Now the generated file has these in the middle, at the base section.
 
-However, how to make use of this wrt tailwind classes?
+More explanation of `@layer` from Bing Chat:
+
+The `@layer` directive is a custom Tailwind-specific at-rule that allows you to group your custom styles into one of three categories: `base`, `components`, and `utilities` ¹.
+
+The `@layer` directive is used to tell Tailwind which "bucket" a set of custom styles belongs to ¹. The `base` layer is used for styles that are applied to the base HTML elements, such as `h1`, `p`, and `a`. The `components` layer is used for styles that are applied to reusable components, such as buttons, cards, and forms. The `utilities` layer is used for styles that are applied to utility classes, such as `.text-red-500`, `.bg-gray-200`, and `.flex-row-reverse`.
+
+Here's an example of how you can use the `@layer` directive in your CSS:
+
+```
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  h1 {
+    @apply text-2xl;
+  }
+  h2 {
+    @apply text-xl;
+  }
+}
+
+@layer components {
+  .btn-blue {
+    @apply bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded;
+  }
+}
+
+@layer utilities {
+  .filter-none {
+    filter: none;
+  }
+  .filter-grayscale {
+    filter: grayscale(100%);
+  }
+}
+```
+
+Tailwind will automatically move the CSS within any `@layer` directive to the same place as the corresponding `@tailwind` rule, so you don't have to worry about authoring your CSS in a specific order to avoid specificity issues ¹. Any custom CSS added to a layer will only be included in the final build if that CSS is actually used in your HTML, just like all of the classes built into Tailwind by default ¹.
+
+Source: Conversation with Bing, 8/28/2023
+(1) Functions & Directives - Tailwind CSS. https://tailwindcss.com/docs/functions-and-directives.
+(2) Using CSS Cascade Layers to Manage Custom Styles in a Tailwind Project. https://css-tricks.com/using-css-cascade-layers-to-manage-custom-styles-in-a-tailwind-project/.
+(3) Functions & Directives - Tailwind CSS. https://v1.tailwindcss.com/docs/functions-and-directives.
+(4) Adding Custom Styles - Tailwind CSS. https://tailwindcss.com/docs/adding-base-styles.
 
 ### Adding Reusable Classes
+
+How to make use of this wrt tailwind classes?
 
 `@apply` directive allows for re-use of tailwindcss classes in our custom definitions. i.e. we can use the same design language as tailwind, when developing our own custom styles.
 
@@ -1565,3 +1611,172 @@ Could also have just specified it in base layer in app css src:
 ```
 
 ### States and Variants
+
+Use different classes when things are in a certain state, eg: hover
+
+Eg: each movie result currently has a semi-transparent gray background: `bg-gray-100/50`. Now want to remove the transparency if a user is hovering over a result.
+
+Use `hover:` variants, eg: `hover:bg-gray-100`
+
+```javascript
+function formatFilm(film) {
+  return `<div class="h-72 overflow-hidden bg-gray-100/50 hover:bg-gray-100 rounded-lg m-1">
+    <div class="w-48 flex-none relative">
+      <img src="${film.posterUrl}" alt="${film.title}" class="absolute"/>
+    </div>
+    ...
+  </div>`;
+}
+```
+
+Generates:
+
+```css
+.hover\:bg-gray-100:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 244 246 / var(--tw-bg-opacity));
+}
+
+.bg-gray-100\/50 {
+  background-color: rgb(243 244 246 / 0.5)
+}
+```
+
+Can use multiple `hover:...` variations on a single element. For example, to also change the text from white to black on hover:
+
+```javascript
+function formatFilm(film) {
+  return `<div class="h-72 overflow-hidden bg-gray-100/50 hover:bg-gray-100 text-white hover:text-black rounded-lg m-1">
+    <div class="w-48 flex-none relative">
+      <img src="${film.posterUrl}" alt="${film.title}" class="absolute"/>
+    </div>
+    ...
+  </div>`;
+}
+```
+
+![hover](doc-images/hover.png "hover")
+
+Can use `hover:...` on any utility class.
+
+Another state Tailwind provides is `dark:`, i.e. dark theme
+
+Generally Tailwind will use theme from operating system setting.
+
+For example, to specify: If user has a dark theme set on their machine, then set movie results to have a dark grey background with white text:
+
+```javascript
+function formatFilm(film) {
+  return `<div class="h-72 overflow-hidden bg-gray-100/50 hover:bg-gray-100 rounded-lg m-1 dark:bg-gray-600/50 dark:text-white">
+    <div class="w-48 flex-none relative">
+      <img src="${film.posterUrl}" alt="${film.title}" class="absolute"/>
+    </div>
+    ...
+  </div>`;
+}
+```
+
+![dark theme](doc-images/dark-theme.png "dark theme")
+
+To allow user to switch this, index.html has a button to toggle dark mode, its been hidden up until now to avoid confusion with inline style to display none, but let's use it now:
+
+```htm
+<!-- module3/public/index.html -->
+<button id="toggle-dark" class="button w-full"">
+  <i class="fas fa-eye"></i> Toggle Dark Mode
+</button>
+```
+
+Then need to configure Tailwind. The default (which you don't have to specify) is:
+
+```javascript
+// read theme from operating system
+darkMode: "prefers-color-scheme",
+```
+
+To support user being able to toggle on the website, regardless of their OS setting, change darkMode to `class`:
+
+```javascript
+// module3/tailwind.config.js
+const defaultTheme = require("tailwindcss/defaultTheme")
+
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: "class",
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ["Roboto", ...defaultTheme.fontFamily.sans]
+      }
+    },
+  },
+  plugins: [],
+}
+```
+
+This means we can specify a class on `<body>` element in html to indicate if its dark mode. By default, it will be light.
+
+Making above change (darkMode: "class"), now the `dark:...` styles are ignored because its defaulting to light, because we haven't modified the body element yet.
+
+Add `dark` to body:
+
+```htm
+<!-- module3/public/index.html -->
+<body class="bg-amber-800 dark">
+  ...
+</body>
+```
+
+And now the `dark:...` styles are rendered.
+
+Generates `:is(...)` styles in css, eg:
+
+```css
+:is(.dark .dark\:bg-gray-600\/50){
+  background-color: rgb(75 85 99 / 0.5);
+}
+
+:is(.dark .dark\:text-white){
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+```
+
+Now we can use JavaScript in project (already provided by instructor). The "Toggle Dark Mode" button simply adds/removes the "dark" class from the body element.
+
+```javascript
+// module3/src/menu.js
+const darkMenu = document.getElementById("toggle-dark");
+
+export default function () {
+  darkMenu.addEventListener("click", async () => {
+    const body = document.body.classList.toggle("dark");
+  });
+}
+```
+
+Notes from ChatGPT about `:is` css selector:
+
+The `:is` selector, also known as the `:matches` selector, allows you to target elements that match any of the provided selectors within the parentheses. It's particularly useful when you have multiple similar selectors that you want to apply the same styles to. It can improve code readability and reduce redundancy.
+
+In your provided code, the `:is(.dark .dark\:bg-gray-600\/50)` selector targets elements that have both the `dark` class and the `dark:bg-gray-600/50` class. Similarly, the `:is(.dark .dark\:text-white)` selector targets elements with both the `dark` class and the `dark:text-white` class.
+
+Here's a breakdown of your example:
+
+1. `:is(.dark .dark\:bg-gray-600\/50)`:
+   - Targets elements with the class `dark` and the class `dark:bg-gray-600/50`.
+   - The `dark:bg-gray-600/50` class seems to be using Tailwind CSS's syntax for modifying classes within specific themes, in this case, the `dark` theme. It sets the background color to a semi-transparent gray (rgb(75 85 99 / 0.5)).
+
+2. `:is(.dark .dark\:text-white)`:
+   - Targets elements with the class `dark` and the class `dark:text-white`.
+   - The `dark:text-white` class also seems to be using Tailwind CSS's syntax for theme modification. It sets the text color to white with an opacity defined by `--tw-text-opacity`.
+
+It's worth noting that while `:is` is part of the CSS Selectors Level 4 specification, it might not be fully supported in all browsers, especially older ones. However, it's generally safe to use when building applications that target modern browsers or when using tools like Tailwind CSS that handle compatibility issues for you. If broad compatibility is a concern, you might want to check the current browser support for the `:is` selector.
+
+Also, [MDN Ref on :is](https://developer.mozilla.org/en-US/docs/Web/CSS/:is)
+
+Now let's add a new layer:
