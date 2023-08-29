@@ -23,4 +23,7 @@
 }
 
 @layer utilities {
+  .wrapper {
+    @apply ring ring-yellow-200 font-bold;
+  }
 }

@@ -17,6 +17,7 @@
     - [Fonts](#fonts)
       - [Customize Theme](#customize-theme)
     - [States and Variants](#states-and-variants)
+    - [Responsive Design](#responsive-design)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -640,7 +641,7 @@ h6 {
   font-weight: inherit;
 }
 
-/* Out custom header styles */
+/* Our custom header styles */
 h1 {
   font-weight: bold;
   font-size: 2rem;
@@ -699,7 +700,11 @@ More explanation of `@layer` from Bing Chat:
 
 The `@layer` directive is a custom Tailwind-specific at-rule that allows you to group your custom styles into one of three categories: `base`, `components`, and `utilities` ¹.
 
-The `@layer` directive is used to tell Tailwind which "bucket" a set of custom styles belongs to ¹. The `base` layer is used for styles that are applied to the base HTML elements, such as `h1`, `p`, and `a`. The `components` layer is used for styles that are applied to reusable components, such as buttons, cards, and forms. The `utilities` layer is used for styles that are applied to utility classes, such as `.text-red-500`, `.bg-gray-200`, and `.flex-row-reverse`.
+The `@layer` directive is used to tell Tailwind which "bucket" a set of custom styles belongs to ¹:
+
+1. The `base` layer is used for styles that are applied to the base HTML elements, such as `h1`, `p`, and `a`.
+2. The `components` layer is used for styles that are applied to reusable components, such as buttons, cards, and forms.
+3. The `utilities` layer is used for styles that are applied to utility classes, such as `.text-red-500`, `.bg-gray-200`, and `.flex-row-reverse`.
 
 Here's an example of how you can use the `@layer` directive in your CSS:
 
@@ -1779,4 +1784,217 @@ It's worth noting that while `:is` is part of the CSS Selectors Level 4 specific
 
 Also, [MDN Ref on :is](https://developer.mozilla.org/en-US/docs/Web/CSS/:is)
 
-Now let's add a new layer:
+Now let's add a new layer, using `ring` class which adds box shadow:
+
+```css
+/* module3/src/app.src.css */
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  h1 {
+    @apply font-bold text-2xl;
+  }
+
+  h2 {
+    @apply font-bold text-xl;
+  }
+
+  h3 {
+    @apply font-bold text-lg;
+  }
+
+  h4 {
+    @apply text-lg;
+  }
+}
+
+/* === NEW === */
+@layer utilities {
+  .wrapper {
+    @apply ring ring-yellow-200 font-bold;
+  }
+}
+```
+
+Now let's use `wrapper` class in the "Toggle Dark Mode" button:
+
+```htm
+<!-- module3/public/index.html -->
+<button id="toggle-dark" class="button w-full wrapper">
+  <i class="fas fa-eye"></i> Toggle Dark Mode
+</button>
+```
+
+Generates:
+
+```css
+/* module3/public/css/app.css */
+.wrapper{
+  font-weight: 700;
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(254 240 138 / var(--tw-ring-opacity));
+}
+```
+
+Can see the button now has a bright yellow outline around it and the text is bold:
+
+![ring](doc-images/ring.png "ring")
+
+Interesting we can add the hover effect also to our custom utility classes like `wrapper`, eg:
+
+```htm
+<button id="toggle-dark" class="button w-full hover:wrapper">
+  <i class="fas fa-eye"></i> Toggle Dark Mode
+</button>
+```
+
+Generates:
+
+```css
+.wrapper{
+  font-weight: 700;
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(254 240 138 / var(--tw-ring-opacity));
+}
+
+.hover\:bg-gray-100:hover{
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 244 246 / var(--tw-bg-opacity));
+}
+
+.hover\:wrapper:hover{
+  font-weight: 700;
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(254 240 138 / var(--tw-ring-opacity));
+}
+```
+
+Now the yellow outline around toggle button only shows up when hovering over it.
+
+Adding `hover:...` to a custom class works as long as that class is in one of base, components, or utilities in `app.src.css`.
+
+### Responsive Design
+
+For remainder, remove `dark` from `<body>` element, no longer using it.
+
+Responsive design in Tailwind provides 5 breakpoints.
+
+Currently the grid of movie results always displays across 3 columns:
+
+```htm
+<!-- module3/public/index.html -->
+<div id="results" class="grid grid-cols-3">
+  ...
+</div>
+```
+
+Which generates:
+
+```css
+/* module3/public/css/app.css */
+.grid{
+  display: grid;
+}
+
+.grid-cols-3{
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+```
+
+TailwindCSS is mobile-first so the first value specified will be used on the smallest screen, then can specify more values for larger screens.
+
+Example, change to one column for movie results:
+
+```htm
+<!-- module3/public/index.html -->
+<div id="results" class="grid grid-cols-1">
+  ...
+</div>
+```
+
+Which generates:
+
+```css
+/* module3/public/css/app.css */
+.grid{
+  display: grid;
+}
+
+.grid-cols-1{
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+```
+
+![grid cols 1](doc-images/grid-cols-1.png "grid cols 1")
+
+On a small screen, this looks about right, except might want to change placement of menu and results so they're not side-by-side because its too crowded on a small screen:
+
+![grid cols 1 small screen](doc-images/grid-cols-1-small-screen.png "grid cols 1 small screen")
+
+Solution is to use variant for different sizes.
+
+`xs` is smallest screen ize and is the default so there is no variant for it. xs === mobile phone.
+
+Other screen sizes are:
+
+1. `sm`: small
+2. `md`: medium
+3. `lg`: large
+4. `xl`: extra large
+5. `2xl`: extra extra large
+
+Update movie results grid to specify that on xs, its 1 column wide, on small screen, it should be 2 columns, on medium screen, 3 columns, and on large screen, 4 columns.
+
+Recall when using variants, use `:` syntax:
+
+```htm
+<div id="results" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+  ...
+</div>
+```
+
+Generates:
+
+```css
+/* module3/public/css/app.css */
+.grid{
+  display: grid;
+}
+
+.grid-cols-1{
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+@media (min-width: 640px){
+  .sm\:grid-cols-2{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px){
+  .md\:grid-cols-3{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px){
+  .lg\:grid-cols-4{
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+```
+
+Left at 2:05
