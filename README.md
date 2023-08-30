@@ -1946,7 +1946,7 @@ On a small screen, this looks about right, except might want to change placement
 
 Solution is to use variant for different sizes.
 
-`xs` is smallest screen ize and is the default so there is no variant for it. xs === mobile phone.
+`xs` is smallest screen size and is the default so there is no variant for it. xs === mobile phone.
 
 Other screen sizes are:
 
@@ -1997,4 +1997,104 @@ Generates:
 }
 ```
 
-Left at 2:05
+Now it renders different number of columns based on viewport width:
+
+![xs](doc-images/xs.png "xs")
+
+![sm](doc-images/sm.png "sm")
+
+![md](doc-images/md.png "md")
+
+![lg](doc-images/lg.png "lg")
+
+It's not necessary to specify each breakpoint, could simply specify on large view port show 2 columns, everywhere else just one:
+
+```htm
+<!-- module3/public/index.html -->
+<div id="results" class="grid grid-cols-1 lg:grid-cols-2">
+  ...
+</div>
+```
+
+This way there's more space to see the text of the movie description:
+
+![lg 2 cols](doc-images/lg-2-cols.png "lg 2 cols")
+
+![xs 1 col](doc-images/xs-1-col.png "xs 1 col")
+
+The responsive variants `xs:`, `sm:`, `md:`, `lg:`, `xl:` work on *any* utility class, just like we saw earlier with `dark:` and `hover:`.
+
+Now let's change the flex container to indicate that by default, flex direction is `column`, which lays out items one on top of each other (which looks like rows which is kind of confusing but that's the flex terminology). And then for any view port that is medium or larger, use flex direction row, which lays out items beside each other (which looks like columns):
+
+```htm
+<div class="flex flex-col md:flex-row gap-1">
+  <header>...</header>
+  <section>...</section>
+</div>
+```
+
+Generates:
+
+```css
+.flex{
+  display: flex;
+}
+
+/* My comment added: */
+/* Default styles apply to anything smaller than 768px */
+.flex-col{
+  flex-direction: column;
+}
+
+/* My comment added: */
+/* Medium devices (landscape tablets, 768px and up) */
+@media (min-width: 768px){
+  .md\:grid-cols-3{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .md\:flex-row{
+    flex-direction: row;
+  }
+}
+```
+
+![flexcol](doc-images/flex-col.png "flexcol")
+
+![flexrow](doc-images/flex-row.png "flexrow")
+
+[Flexbox Guide](https://css-tricks.com/snippets/css/a-guide-to-flexbox/)
+
+Additional variants that can be used are: `portrait:` and `landscape:`. Specific to mobile devices that can be rotated. Eg:
+
+```htm
+<div class="flex flex-col md:flex-row gap-1 portrait:flex-col landscape:flex-row">
+  <header>...</header>
+  <section>...</section>
+</div>
+```
+
+Generates:
+
+```css
+/* module3/public/css/app.css */
+@media (orientation: portrait){
+  .portrait\:flex-col{
+    flex-direction: column;
+  }
+}
+
+@media (orientation: landscape){
+  .landscape\:flex-row{
+    flex-direction: row;
+  }
+}
+```
+
+Since the `landscape:flex-row` variant is specified after the default `flex-col`, now even for a viewport that is smaller than 768px, it will render the header and movie sections beside each other when phone is rotated. Compare iPhone portrait vs rotated/landscape:
+
+![iphone portrait](doc-images/iphone-portrait.png "iphone portrait")
+
+![iphone landscape](doc-images/iphone-rotated.png "iphone landscape")
+
+Left at 4:41
