@@ -18,6 +18,7 @@
       - [Customize Theme](#customize-theme)
     - [States and Variants](#states-and-variants)
     - [Responsive Design](#responsive-design)
+    - [Plugins](#plugins)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -2097,4 +2098,41 @@ Since the `landscape:flex-row` variant is specified after the default `flex-col`
 
 ![iphone landscape](doc-images/iphone-rotated.png "iphone landscape")
 
-Left at 4:41
+Sometimes may need to use `!important`.
+
+Example, want to make a full-width button (width: 100%):
+
+```htm
+<!-- module3/public/index.html -->
+<button id="menu-pass" class="button w-full">
+  <i class="fas fa-check"></i> Passing Films
+</button>
+```
+
+But what if that conflicts with something else already defined?
+
+Can add `!` to any class to make it important:
+
+```htm
+<!-- module3/public/index.html -->
+<button id="menu-pass" class="button !w-full">
+  <i class="fas fa-check"></i> Passing Films
+</button>
+```
+
+Generates:
+
+```css
+/* module3/public/css/app.css */
+.w-full{
+  width: 100%;
+}
+
+.\!w-full{
+  width: 100% !important;
+}
+```
+
+Careful with important, use with restraint.
+
+### Plugins
