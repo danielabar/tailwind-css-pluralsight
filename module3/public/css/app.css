@@ -601,6 +601,10 @@ h4{
   position: relative;
 }
 
+.float-right{
+  float: right;
+}
+
 .m-1{
   margin: 0.25rem;
 }
@@ -612,6 +616,13 @@ h4{
 
 .ml-48{
   margin-left: 12rem;
+}
+
+.line-clamp-3{
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .inline-block{
@@ -634,6 +645,10 @@ h4{
   height: 18rem;
 }
 
+.\!w-full{
+  width: 100% !important;
+}
+
 .w-24{
   width: 6rem;
 }
@@ -646,12 +661,20 @@ h4{
   width: 100%;
 }
 
-.\!w-full{
-  width: 100% !important;
+.w-72{
+  width: 18rem;
+}
+
+.w-96{
+  width: 24rem;
 }
 
 .flex-none{
   flex: none;
+}
+
+.cursor-pointer{
+  cursor: pointer;
 }
 
 .grid-cols-1{
@@ -695,6 +718,11 @@ h4{
 
 .bg-gray-100\/50{
   background-color: rgb(243 244 246 / 0.5);
+}
+
+.bg-slate-50{
+  --tw-bg-opacity: 1;
+  background-color: rgb(248 250 252 / var(--tw-bg-opacity));
 }
 
 .bg-cover{
@@ -741,6 +769,13 @@ h4{
 .text-gray-800{
   --tw-text-opacity: 1;
   color: rgb(31 41 55 / var(--tw-text-opacity));
+}
+
+.line-clamp-3{
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .hover\:bg-gray-100:hover{

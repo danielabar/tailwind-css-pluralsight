@@ -19,6 +19,9 @@
     - [States and Variants](#states-and-variants)
     - [Responsive Design](#responsive-design)
     - [Plugins](#plugins)
+  - [TailwindCSS for Forms](#tailwindcss-for-forms)
+    - [The Form](#the-form)
+    - [Styling Inputs](#styling-inputs)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -940,6 +943,14 @@ Now leave it at three columns with no gap:
 Note that since the grid classes are defined on the parent element, could have JavaScript swap out the child elements (eg: select a different year for movies), and the grid layout is still maintained.
 
 ### Units
+
+Tailwind "arithmetic":
+
+1 Tailwind unit = 0.25rem
+1 rem = 16px (i.e. base font size, but user can customize this in their browser, then all elements styled with rem units will scale proportionally)
+
+So if user has not customized base font size, generally:
+1 Tailwind unit = 0.25rem = 4px
 
 Tailwind is consistent with units, eg: `gap-1` is 0.25rem (aka 4px).
 
@@ -2136,3 +2147,176 @@ Generates:
 Careful with important, use with restraint.
 
 ### Plugins
+
+[Docs](https://tailwindcss.com/docs/plugins)
+
+`module3/tailwind.config.js` has a `plugins: [...]` section.
+
+To start, need to install a plugin, for example, to abbreviate text:
+
+```bash
+npm i @tailwindcss/line-clamp -D
+```
+
+Then specify it in plugins section of tailwind config:
+
+```javascript
+// module3/tailwind.config.js
+const defaultTheme = require("tailwindcss/defaultTheme")
+
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: "class",
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ["Roboto", ...defaultTheme.fontFamily.sans]
+      }
+    },
+  },
+  plugins: [
+    require("@tailwindcss/line-clamp")
+  ],
+}
+```
+
+Restart `npm run dev` build after making any changes to tailwind config.
+
+Each plugin is able to add its own classes, variants, variables, etc to tailwind build.
+
+Now let's use some classes from the line-clamp plugin in results.js, to restrict display of `film.overview`.
+
+Notice line-clamp options now show up in intellisense:
+
+![line clamp options](doc-images/line-clamp-options.png "line clamp options")
+
+Use `line-clamp-3` to indicate after first 3 lines, don't render any more of the description:
+
+```javascript
+function formatFilm(film) {
+  return `<div class="h-72 overflow-hidden bg-gray-100/50 hover:bg-gray-100 rounded-lg m-1 dark:bg-gray-600/50 dark:text-white">
+    ...
+    <div class="ml-48 p-2">
+      ...
+      <p class="line-clamp-3">${film.overview}</p>
+    </div>
+  </div>`;
+}
+```
+
+Generates:
+
+```css
+/* module3/public/css/app.css */
+.line-clamp-3{
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+```
+
+Now only first 3 lines of movie description are shown, followed by ellipsis `...`:
+
+![line clamp 3](doc-images/line-clamp-3.png "line clamp 3")
+
+## TailwindCSS for Forms
+
+### The Form
+
+The form we'll be styling is in a `<dialog>` element at the end of index.html, "contact us" type of form:
+
+```htm
+<!-- module3/public/index.html -->
+<dialog id="mail">
+  <div>
+    <div>
+      <div id="close-icon">
+        &#10006;
+      </div>
+      <h1>Send us a Message</h1>
+    </div>
+    <form novalidate id="mail-form">
+      <label>Name</label>
+      <input type="text" placeholder="e.g. John Smith" autofocus required />
+      <label>Email</label>
+      <input type="email" placeholder="e.g. you@yourdomain.com" required />
+      <label>Subject</label>
+      <input type="text" placeholder="e.g. Data Issue" />
+      <label>Priority</label>
+      <input type="number" placeholder="1-5" min="1" max="5" />
+      <label>Message</label>
+      <textarea rows="4"></textarea>
+      <button type="submit" class="button" id="send-button" disabled>Send</button>
+      <button type="button"  class="button" id="cancel-button">Cancel</button>
+      <div id="message"></div>
+    </form>
+  </div>
+</dialog>
+```
+
+Instructor has already provided code that when "Contact Us" button is clicked in header, it opens dialog (unstyled at the moment):
+
+![unstyled dialog form](doc-images/unstyled-dialog-form.png "unstyled dialog form")
+
+Start by styling dialog element itself:
+
+Specify a width: `w-72`
+
+```htm
+<!-- module3/public/index.html -->
+<dialog id="mail" class="w-72">
+  ...
+</dialog>
+```
+
+Now dialog is smaller:
+
+![dialog w 72](doc-images/dialog-w-72.png "dialog w 72")
+
+Actually too small, bump it up to w-96 (i.e. 24rem)
+
+Add rounded corners, not quite white background, very dark grey text, but not quite black:
+
+```htm
+<!-- module3/public/index.html -->
+<dialog id="mail" class="w-96 rounded-lg bg-slate-50 text-gray-800">
+  ...
+</dialog>
+```
+
+Dialog starting to take shape:
+
+![dialog styles](doc-images/dialog-styles.png "dialog styles")
+
+Now float the close icon over to the right with `float-right` class and specify `cursor-pointer`:
+
+```htm
+<!-- module3/public/index.html -->
+<dialog id="mail" class="w-72">
+  ...
+  <div id="close-icon" class="float-right cursor-pointer">
+    &#10006;
+  </div>
+  ...
+</dialog>
+```
+
+Generates:
+
+```css
+/* module3/public/css/app.css */
+.float-right{
+  float: right;
+}
+
+.cursor-pointer{
+  cursor: pointer;
+}
+```
+
+### Styling Inputs

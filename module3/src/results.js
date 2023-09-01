@@ -113,7 +113,7 @@ function formatFilm(film) {
       <div><span class="font-bold w-24 inline-block">Int'l Gross:</span>$${film.internationalGross.toLocaleString(
         "en-US"
       )}</div>
-      <p>${film.overview}</p>
+      <p class="line-clamp-3">${film.overview}</p>
     </div>
   </div>`;
 }
