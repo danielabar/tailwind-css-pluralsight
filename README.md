@@ -22,6 +22,7 @@
   - [TailwindCSS for Forms](#tailwindcss-for-forms)
     - [The Form](#the-form)
     - [Styling Inputs](#styling-inputs)
+    - [Styling Buttons](#styling-buttons)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -2320,3 +2321,283 @@ Generates:
 ```
 
 ### Styling Inputs
+
+Update labels in contact form to be bold, and display block so they aren't on the same line as the input. Also make label text larger.
+
+Then style inputs to add some padding around text, make text larger, add a grey ring, add some margin, and use `focus:` variant to give the input a light yellow background when its focused. Also set the focus outline to none because we already have a background color change, don't want extra clutter. Make each input rounded so it starts to look more like a typical form. Finally use `w-full` to make each input take up the full width of the container
+
+```htm
+<!-- module3/public/index.html -->
+<form novalidate id="mail-form">
+  <label class="font-bold block text-lg">Name</label>
+  <input class="p-1 w-full rounded text-lg ring ring-gray-800 mb-2 focus:bg-yellow-50 focus:outline-none" type="text" placeholder="e.g. John Smith" autofocus required />
+  <label class="font-bold block text-lg">Email</label>
+  <input class="p-1 w-full rounded text-lg ring ring-gray-800 mb-2 focus:bg-yellow-50 focus:outline-none" type="email" placeholder="e.g. you@yourdomain.com" required />
+  <label class="font-bold block text-lg">Subject</label>
+  <input class="p-1 w-full rounded text-lg ring ring-gray-800 mb-2 focus:bg-yellow-50 focus:outline-none" type="text" placeholder="e.g. Data Issue" />
+  <label class="font-bold block text-lg">Priority</label>
+  <input class="p-1 w-full rounded text-lg ring ring-gray-800 mb-2 focus:bg-yellow-50 focus:outline-none" type="number" placeholder="1-5" min="1" max="5" />
+  <label class="font-bold block text-lg">Message</label>
+  <textarea rows="4"></textarea>
+  <button type="submit" class="button" id="send-button" disabled>Send</button>
+  <button type="button"  class="button" id="cancel-button">Cancel</button>
+  <div id="message"></div>
+</form>
+```
+
+![contact form labels and inputs](doc-images/contact-form-labels-and-inputs.png "contact form labels and inputs")
+
+Here are all the styles added to input elements shown in dev tools:
+
+![form inputs styles dev tools](doc-images/form-input-styles-dev-tools.png "form inputs styles dev tools")
+
+Notice that we had to repeat the full set of input styles on every input in the form:
+
+```htm
+<input class="p-1 w-full rounded text-lg ring ring-gray-800 mb-2 focus:bg-yellow-50 focus:outline-none" ... />
+```
+
+There could be many forms in a project and want all inputs to be consistently styled like this.
+
+Rather than repeating this list of styles, add them to the base layer in app src css. Will specify all form labels and inputs so all of them in the project will have consistent styles:
+
+```css
+/* module3/src/app.src.css */
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  h1 {
+    @apply font-bold text-2xl;
+  }
+
+  h2 {
+    @apply font-bold text-xl;
+  }
+
+  h3 {
+    @apply font-bold text-lg;
+  }
+
+  h4 {
+    @apply text-lg;
+  }
+
+  form label {
+    @apply font-bold block text-lg;
+  }
+
+  form input {
+    @apply p-1 w-full rounded text-lg ring ring-gray-800 mb-2 focus:bg-yellow-50 focus:outline-none;
+  }
+}
+
+@layer utilities {
+  .wrapper {
+    @apply ring ring-yellow-200 font-bold;
+  }
+}
+```
+
+**WARNING:** When copying variant classes from html to `app.src.css`, VSCode but automatically adds space like this: `focus: outline-none` which results in invalid syntax and breaks the TailwindCSS build. Remember to get rid of this space so its like: `focus:outline-none` to fix the build.
+
+After they're defined in app src css, can remove all the classes we added earlier from form label and input elements because now they will be automatically "applied":
+
+```htm
+<form novalidate id="mail-form">
+  <label>Name</label>
+  <input type="text" placeholder="e.g. John Smith" autofocus required />
+  <label>Email</label>
+  <input type="email" placeholder="e.g. you@yourdomain.com" required />
+  <label>Subject</label>
+  <input type="text" placeholder="e.g. Data Issue" />
+  <label>Priority</label>
+  <input type="number" placeholder="1-5" min="1" max="5" />
+  <label>Message</label>
+  <textarea rows="4"></textarea>
+  <button type="submit" class="button" id="send-button" disabled>Send</button>
+  <button type="button"  class="button" id="cancel-button">Cancel</button>
+  <div id="message"></div>
+</form>
+```
+
+Result is the form looks styled as before, but looking at dev tools, all the styles are applied as a group to `form label` and `form input` selectors:
+
+```css
+/* Tailwind Generated */
+form label{
+  display: block;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 700;
+}
+
+form input{
+  margin-bottom: 0.5rem;
+  width: 100%;
+  border-radius: 0.25rem;
+  padding: 0.25rem;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(31 41 55 / var(--tw-ring-opacity));
+}
+
+form input:focus{
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 252 232 / var(--tw-bg-opacity));
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+```
+
+But the "Message" field, which is a textarea, isn't being automatically styled. Solution is to add it to app src css:
+
+```css
+/* module3/src/app.src.css */
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* other styles */
+  form input,
+  form textarea {
+    @apply p-1 w-full rounded text-lg ring ring-gray-800 mb-2 focus:bg-yellow-50 focus:outline-none;
+  }
+}
+
+/* other stuff */
+```
+
+Now textarea Message automatically gets the styles as well:
+
+![textarea styled](doc-images/textarea-styled.png "textarea styled")
+
+**PROBLEM**
+
+Sometimes instead of a `<button>` may have `<input type="submit".../>` in a form, example:
+
+```htm
+<form novalidate id="mail-form">
+  <label>Name</label>
+  <input type="text" placeholder="e.g. John Smith" autofocus required />
+  <label>Email</label>
+  <input type="email" placeholder="e.g. you@yourdomain.com" required />
+  <label>Subject</label>
+  <input type="text" placeholder="e.g. Data Issue" />
+  <label>Priority</label>
+  <input type="number" placeholder="1-5" min="1" max="5" />
+  <label>Message</label>
+  <textarea rows="4"></textarea>
+  <!-- Demonstration: Use input rather than button element -->
+  <!-- <button type="submit" class="button" id="send-button" disabled>Send</button> -->
+  <input type="submit" class="button" id="send-button" disabled value="Send"></input>
+  <button type="button"  class="button" id="cancel-button">Cancel</button>
+  <div id="message"></div>
+</form>
+```
+
+In this case, the input button will also get the form styles because of the `form input` we specified earlier in app src css:
+
+![input button incorrectly styled](doc-images/input-button-incorrectly-styled.png "input button incorrectly styled")
+
+To fix this, add `:not` selectors in app src css to indicate that the `form input` styling should not apply to submit or checkbox type inputs:
+
+```css
+/* module3/src/app.src.css */
+/* other stuff */
+@layer base {
+  /* other styles */
+  form input:not([type=submit]):not([type=checkbox]),
+  form textarea {
+    @apply p-1 w-full rounded text-lg ring ring-gray-800 mb-2 focus:bg-yellow-50 focus:outline-none;
+  }
+}
+/* other stuff */
+```
+
+Generates:
+
+```css
+/* module3/public/css/app.css */
+form input:not([type=submit]):not([type=checkbox]),
+  form textarea{
+  margin-bottom: 0.5rem;
+  width: 100%;
+  border-radius: 0.25rem;
+  padding: 0.25rem;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(31 41 55 / var(--tw-ring-opacity));
+}
+
+form input:not([type=submit]):not([type=checkbox]):focus,
+  form textarea:focus{
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 252 232 / var(--tw-bg-opacity));
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+```
+
+And now the Send button doesn't get any of these styles.
+
+Some final touchups, the current gray-800 looks too heavy outlining each form element, lets lighten to 400, and also change the ring color to a brighter yellow when focused:
+
+```css
+/* module3/src/app.src.css */
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* other styles */
+  form input:not([type=submit]):not([type=checkbox]),
+  form textarea {
+    @apply p-1 w-full rounded text-lg ring ring-gray-400 mb-2 focus:bg-yellow-50 focus:outline-none focus:ring-yellow-400;
+  }
+}
+
+/* other stuff */
+```
+
+![form touchups](doc-images/form-touchups.png "form touchups")
+
+Can also use Tailwind to style the placeholder text in the form inputs, using the `placeholder:` variant.
+
+At this point, the list of classes to apply `form input` in app src css is getting really long, it can be broken up into multiple lines. Try to organize like classes/variants together in a line:
+
+```css
+/* module3/src/app.src.css */
+/* other stuff */
+@layer base {
+  /* other styles */
+  form input:not([type=submit]):not([type=checkbox]),
+  form textarea {
+    @apply p-1 w-full rounded text-lg mb-2
+           ring ring-gray-400
+         placeholder:text-gray-300 placeholder:font-normal
+         focus:bg-yellow-50 focus:outline-none focus:ring-yellow-400;
+  }
+}
+/* other stuff */
+```
+
+![placeholder text](doc-images/placeholder-text.png "placeholder text")
+
+### Styling Buttons

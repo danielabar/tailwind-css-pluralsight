@@ -191,7 +191,7 @@
         >
       </div>
     </footer>
-    <dialog id="mail" class="w-96 rounded-lg bg-slate-50 text-gray-800">
+    <dialog id="mail" class="w-96 p-4 rounded-lg bg-slate-50 text-gray-800">
       <div>
         <div>
           <div id="close-icon" class="float-right cursor-pointer">
@@ -210,7 +210,9 @@
           <input type="number" placeholder="1-5" min="1" max="5" />
           <label>Message</label>
           <textarea rows="4"></textarea>
-          <button type="submit" class="button" id="send-button" disabled>Send</button>
+          <!-- Demonstration: Use input rather than button element -->
+          <!-- <button type="submit" class="button" id="send-button" disabled>Send</button> -->
+          <input type="submit" class="button" id="send-button" disabled value="Send"></input>
           <button type="button"  class="button" id="cancel-button">Cancel</button>
           <div id="message"></div>
         </form>

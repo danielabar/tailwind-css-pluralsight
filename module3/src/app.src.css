@@ -20,6 +20,18 @@
   h4 {
     @apply text-lg;
   }
+
+  form label {
+    @apply font-bold block text-lg;
+  }
+
+  form input:not([type=submit]):not([type=checkbox]),
+  form textarea {
+    @apply p-1 w-full rounded text-lg mb-2
+           ring ring-gray-400
+         placeholder:text-gray-300 placeholder:font-normal
+         focus:bg-yellow-50 focus:outline-none focus:ring-yellow-400;
+  }
 }
 
 @layer utilities {
