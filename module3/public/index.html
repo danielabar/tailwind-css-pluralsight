@@ -70,27 +70,27 @@
           <section id="menu">
             <div><select id="year-select"></select></div>
             <div>
-              <button id="menu-all" class="button selected">
+              <button id="menu-all" class="button selected w-full">
                 <i class="fas fa-book-open"></i> All Films
               </button>
             </div>
             <div>
-              <button id="menu-pass" class="button !w-full">
+              <button id="menu-pass" class="button w-full">
                 <i class="fas fa-check"></i> Passing Films
               </button>
             </div>
             <div>
-              <button id="menu-fail" class="button">
+              <button id="menu-fail" class="button w-full">
                 <i class="fas fa-xmark"></i> Failing Films
               </button>
             </div>
             <div>
-              <button id="send-message" class="button">
+              <button id="send-message" class="button w-full">
                 <i class="fas fa-envelope"></i> Contact Us
               </button>
             </div>
             <div>
-              <button id="toggle-dark" class="button w-full hover:wrapper">
+              <button id="toggle-dark" class="button hover:wrapper w-full">
                 <i class="fas fa-eye"></i> Toggle Dark Mode
               </button>
             </div>
@@ -212,8 +212,8 @@
           <textarea rows="4"></textarea>
           <!-- Demonstration: Use input rather than button element -->
           <!-- <button type="submit" class="button" id="send-button" disabled>Send</button> -->
-          <input type="submit" class="button" id="send-button" disabled value="Send"></input>
-          <button type="button"  class="button" id="cancel-button">Cancel</button>
+          <input type="submit" class="button bg-green-700 hover:bg-green-900" id="send-button" disabled value="Send"></input>
+          <button type="button"  class="button bg-slate-600 hover:bg-slate-500" id="cancel-button">Cancel</button>
           <div id="message"></div>
         </form>
       </div>

@@ -32,6 +32,12 @@
          placeholder:text-gray-300 placeholder:font-normal
          focus:bg-yellow-50 focus:outline-none focus:ring-yellow-400;
   }
+
+  .button {
+    @apply p-2 border border-gray-500 rounded my-1
+         bg-blue-800 font-bold text-white
+         hover:bg-blue-900;
+  }
 }
 
 @layer utilities {

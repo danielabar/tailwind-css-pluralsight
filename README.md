@@ -2601,3 +2601,213 @@ At this point, the list of classes to apply `form input` in app src css is getti
 ![placeholder text](doc-images/placeholder-text.png "placeholder text")
 
 ### Styling Buttons
+
+Working on menu button, currently it has some classes already (not from Tailwind):
+
+```htm
+<!-- module3/public/index.html -->
+<section id="menu">
+  <div><select id="year-select"></select></div>
+  <div>
+    <button id="menu-all" class="button selected">
+      <i class="fas fa-book-open"></i> All Films
+    </button>
+  </div>
+  <div>
+    <button id="menu-pass" class="button !w-full">
+      <i class="fas fa-check"></i> Passing Films
+    </button>
+  </div>
+  <div>
+    <button id="menu-fail" class="button">
+      <i class="fas fa-xmark"></i> Failing Films
+    </button>
+  </div>
+  <div>
+    <button id="send-message" class="button">
+      <i class="fas fa-envelope"></i> Contact Us
+    </button>
+  </div>
+  <div>
+    <button id="toggle-dark" class="button w-full hover:wrapper">
+      <i class="fas fa-eye"></i> Toggle Dark Mode
+    </button>
+  </div>
+</section>
+```
+
+Start with `p-2` padding to add spacing between text and edge of button, add border with a medium gray background and white text for contrast on the dark gray.
+
+Note that `border` just adds `border-width: 1px;`.
+
+```htm
+<!-- module3/public/index.html -->
+<section id="menu">
+  <button id="menu-all" class="button selected p-2 border bg-slate-600 text-white">
+    <i class="fas fa-book-open"></i> All Films
+  </button>
+  <!-- ... -->
+</section>
+```
+
+![button styling](doc-images/button-styling.png "button styling")
+
+Doesn't look that great, keep iterating to improve on it:
+
+Use `my-1` to add margin spacing to top and bottom of button element so it has more breathing room around the other buttons:
+
+```htm
+<!-- module3/public/index.html -->
+<button id="menu-all" class="button selected p-2 border border-gray-500 rounded bg-blue-800 font-bold text-white my-1">
+  <i class="fas fa-book-open"></i> All Films
+</button>
+```
+
+![button improved](doc-images/button-improved.png "button improved")
+
+Next want to apply this button styling consistently to *all* buttons on the site. Use `@apply` in app src css. This is one of those rare cases where you'd want to create a custom `.button` class and specify it in the `@base` layer:
+
+```css
+/* module3/src/app.src.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  .button {
+    @apply p-2 border border-gray-500 rounded bg-blue-800 font-bold text-white my-1
+  }
+}
+```
+
+Now any html element having `button` class will automatically get all of the specified styles:
+
+![all buttons styled](doc-images/all-buttons-styled.png "all buttons styled")
+
+Also the form buttons automatically got styled because they also have the button class:
+
+![form buttons styled](doc-images/form-buttons-styled.png "form buttons styled")
+
+But what if some buttons should look different? eg: Want the submit button on the contact form to have a different background, green instead of blue, to draw attention to the primary action. And also want to de-emphasize cancel button with a medium gray background.
+
+Can still add more styles after the custom `button` style to get overriding styles:
+
+```htm
+<form novalidate id="mail-form">
+  <!-- ... -->
+  <input type="submit" class="button bg-green-700" id="send-button" disabled value="Send"></input>
+  <button type="button"  class="button bg-slate-600" id="cancel-button">Cancel</button>
+</form>
+```
+
+![button and other styles](doc-images/button-and-other-styles.png "button and other styles")
+
+Now come back to menu buttons:
+
+Remove the `!w-full` added earlier, and move `w-full` to the custom button class in app src css:
+
+```css
+/* module3/src/app.src.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  .button {
+    @apply w-full p-2 border border-gray-500 rounded bg-blue-800 font-bold text-white my-1
+  }
+}
+```
+
+This makes *all* buttons full width:
+
+![all buttons full width](doc-images/all-buttons-full-width.png "all buttons full width")
+
+Including contact form buttons:
+
+![contact buttons full width](doc-images/contact-buttons-full-width.png "contact buttons full width")
+
+Notice the "Next >" button at the top and contact form buttons are also full width, but this may not be what you want as per the design. In this case, adding `w-full` to custom button style in `app/src.css` may not be the optimal solution.
+
+In this case, better solution is to not have it on `.button`, and to just specify `w-full` on the html elements, just where we need it, which is the menu buttons only:
+
+```css
+/* module3/src/app.src.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  .button {
+    @apply w-full p-2 border border-gray-500 rounded bg-blue-800 font-bold text-white my-1
+  }
+}
+```
+
+```htm
+<!-- module3/public/index.html -->
+<section id="menu">
+  <div>
+    <button id="menu-all" class="button selected w-full">
+      <i class="fas fa-book-open"></i> All Films
+    </button>
+  </div>
+  <div>
+    <button id="menu-pass" class="button w-full">
+      <i class="fas fa-check"></i> Passing Films
+    </button>
+  </div>
+  <div>
+    <button id="menu-fail" class="button w-full">
+      <i class="fas fa-xmark"></i> Failing Films
+    </button>
+  </div>
+  <div>
+    <button id="send-message" class="button w-full">
+      <i class="fas fa-envelope"></i> Contact Us
+    </button>
+  </div>
+  <div>
+    <button id="toggle-dark" class="button hover:wrapper w-full">
+      <i class="fas fa-eye"></i> Toggle Dark Mode
+    </button>
+  </div>
+</section>
+```
+
+Now only the menu buttons are full:
+
+![only menu buttons full](doc-images/only-menu-buttons-full.png "only menu buttons full")
+
+Another thing to improve is to make the menu buttons look more like buttons. This will be more styles in `app.src.css` in the base layer for the custom button class. Start breaking it up into multiple lines for legibility.
+
+Add hover of darker blue, to get an effect as user hovers over buttons:
+
+```css
+/* module3/src/app.src.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  .button {
+    @apply p-2 border border-gray-500 rounded my-1
+         bg-blue-800 font-bold text-white
+         hover:bg-blue-900;
+  }
+}
+```
+
+This looks good for main page buttons, but weird on Contact form buttons because we had changed their color, so its weird that they hover to blue when original colors are green and dark gray. So now need to go to those specifically and change the hover background colors:
+
+```htm
+<form novalidate id="mail-form">
+  <!-- ... -->
+  <input type="submit" class="button bg-green-700 hover:bg-green-900" id="send-button" disabled value="Send"></input>
+  <button type="button"  class="button bg-slate-600 hover:bg-slate-500" id="cancel-button">Cancel</button>
+</form>
+```
+
+Notice that currently the submit button in the contact form is `disabled`. There's some JS that runs validation rules and removes `disabled` if the rules pass. We also need to style the `disabled` state.
+
+Left off at 6:17
