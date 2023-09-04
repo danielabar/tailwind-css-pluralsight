@@ -25,12 +25,15 @@
     - [Styling Buttons](#styling-buttons)
     - [Styling Select Elements](#styling-select-elements)
     - [Validation States](#validation-states)
+  - [Customizing TailwindCSS](#customizing-tailwindcss)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # Tailwind CSS Pluralsight
 
 My notes from Pluralsight course on [TailwindCSS Fundamentals](https://app.pluralsight.com/library/courses/tailwind-css-3-fundamentals/table-of-contents)
+
+[Tailwind Docs](https://tailwindcss.com/docs/installation)
 
 Running the exercises, from Module 3 onwards:
 
@@ -2973,3 +2976,115 @@ header select > option {
 For me on Chrome, these styles have no effect, the options still display as before. Known issue: https://stackoverflow.com/questions/28974069/css-dropdown-option-text-color-not-working-on-mac-os-x
 
 ### Validation States
+
+In sample project from instructor, using html browser state validation, it is NOT a JavaScript SPA.
+
+Use `required:` variant, for example specify italic for required Name input:
+
+```htm
+<!-- module3/public/index.html -->
+<form novalidate id="mail-form">
+  <label>Name</label>
+  <input class="required:italic" type="text" placeholder="e.g. John Smith" autofocus required />
+  ...
+</form>
+```
+
+Generates:
+
+```css
+/* module3/public/css/app.css */
+.required\:italic:required{
+  font-style: italic;
+}
+```
+
+This makes the placeholder text (and text the user inputs) italic:
+
+![required italic](doc-images/required-italic.png "required italic")
+
+But there's a problem, if specify `required:font-bold` in markup (which generates `font-weight: 700;` in css), this style is not applied to the placeholder text because there are more specific styles on the form inputs applied in `app.src.css` via `placeholder:font-normal` (which generates `font-weight: 400;`).
+
+Either can specify `required:` variant in base styles, or use important in markup for both the main input text and placeholder text:
+
+```htm
+<input class="required:font-bold required:placeholder:!font-bold" type="text" placeholder="e.g. John Smith" autofocus required />
+```
+
+For me: The input text user types in was bold either way.
+
+![placeholder bold important](doc-images/placeholder-bold-important.png "placeholder bold important")
+
+A better solution over using important selector is to add the required state variants in base styles in `app.src.css`. For example, to add a red ring effect around required fields:
+
+```css
+/* module3/src/app.src.css */
+.input-base {
+    @apply p-1 w-full text-lg
+           ring ring-gray-400
+           mb-2 rounded
+           placeholder:text-gray-300 placeholder:font-normal;
+  }
+
+  form input:not([type=submit]):not([type=checkbox]),
+  form textarea {
+    @apply input-base
+           required:ring-red-400
+           focus:bg-yellow-50 focus:outline-none focus:ring-yellow-400;
+  }
+```
+
+![required red ring](doc-images/required-red-ring.png "required red ring")
+
+Can also add validation to the priority field if the user has specified a value that's out of range. This field expects a value between 1 and 5:
+
+```htm
+<!-- module3/public/index.html -->
+<input type="number" placeholder="1-5" min="1" max="5" />
+```
+
+Can use `out-of-range` (also have `in-range`):
+```css
+form input:not([type=submit]):not([type=checkbox]),
+  form textarea {
+    @apply input-base
+         required:ring-red-400 out-of-range:ring-red-400
+         focus:bg-yellow-50 focus:outline-none focus:ring-yellow-400;
+  }
+```
+
+Generates:
+
+```css
+/* module3/public/css/app.css */
+form input:not([type=submit]):not([type=checkbox]):required,
+  form textarea:required{
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(248 113 113 / var(--tw-ring-opacity));
+}
+
+form input:not([type=submit]):not([type=checkbox]):out-of-range,
+  form textarea:out-of-range{
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(248 113 113 / var(--tw-ring-opacity));
+}
+```
+
+Looks like:
+
+![validations](doc-images/validatons.png "validations")
+
+Note that using `required:` variant will *stay* on the element even if user isn't interacting with it.
+
+An alternative is to use the `invalid:` variant, and chain it with `focus:` so that it shows up as user is interacting with the element:
+
+```css
+form input:not([type=submit]):not([type=checkbox]),
+  form textarea {
+    @apply input-base
+         invalid:ring-red-400 focus:invalid:ring-red-400
+         focus:bg-yellow-50 focus:outline-none focus:ring-yellow-400;
+  }
+```
+
+## Customizing TailwindCSS

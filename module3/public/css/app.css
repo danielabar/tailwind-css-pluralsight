@@ -494,6 +494,12 @@ form input:not([type=submit]):not([type=checkbox])::placeholder,
   color: rgb(209 213 219 / var(--tw-text-opacity));
 }
 
+form input:not([type=submit]):not([type=checkbox]):invalid,
+  form textarea:invalid{
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(248 113 113 / var(--tw-ring-opacity));
+}
+
 form input:not([type=submit]):not([type=checkbox]):focus,
   form textarea:focus{
   --tw-bg-opacity: 1;
@@ -502,6 +508,12 @@ form input:not([type=submit]):not([type=checkbox]):focus,
   outline-offset: 2px;
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(250 204 21 / var(--tw-ring-opacity));
+}
+
+form input:not([type=submit]):not([type=checkbox]):invalid:focus,
+  form textarea:invalid:focus{
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(248 113 113 / var(--tw-ring-opacity));
 }
 
 select{

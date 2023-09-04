@@ -35,6 +35,7 @@
   form input:not([type=submit]):not([type=checkbox]),
   form textarea {
     @apply input-base
+         invalid:ring-red-400 focus:invalid:ring-red-400
          focus:bg-yellow-50 focus:outline-none focus:ring-yellow-400;
   }
 
