@@ -23,6 +23,8 @@
     - [The Form](#the-form)
     - [Styling Inputs](#styling-inputs)
     - [Styling Buttons](#styling-buttons)
+    - [Styling Select Elements](#styling-select-elements)
+    - [Validation States](#validation-states)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -2810,4 +2812,164 @@ This looks good for main page buttons, but weird on Contact form buttons because
 
 Notice that currently the submit button in the contact form is `disabled`. There's some JS that runs validation rules and removes `disabled` if the rules pass. We also need to style the `disabled` state.
 
-Left off at 6:17
+Will do this in `app.src.css` so the disabled state can be styled consistently across all buttons on the site. Do this by adding the `diabled:` variant in list of classes for custom `.button` class:
+
+```css
+/* module3/src/app.src.css */
+.button {
+  @apply p-2 border border-gray-500 rounded my-1
+        bg-blue-800 font-bold text-white hover:bg-blue-900
+        disabled:bg-gray-300 disabled:text-gray-400;
+}
+```
+
+With this change, the Send button does change background and text to match our `disabled:` variant styles:
+
+![disabled send](doc-images/disabled-send.png "disabled send")
+
+BUT it still shows the darker green background when hovering over it (due to `hover:bg-green-900` class on button element in markup), and cursor still looks like a pointer. To deal with this, can use chained variants. For example `disabled:hover:bg-gray-300` to indicate, when button is disabled *and* its hovered over, then make the background the same as its disabled state, i.e. hover will have no color change. And also add `cursor-not-allowed` for disabled state:
+
+```css
+/* module3/src/app.src.css */
+.button {
+  @apply p-2 border border-gray-500 rounded my-1
+        bg-blue-800 font-bold text-white hover:bg-blue-900
+        disabled:bg-gray-300 disabled:text-gray-400 disabled:hover:bg-gray-300
+        disabled:cursor-not-allowed;
+  }
+```
+
+### Styling Select Elements
+
+Want to make the Select Year dropdown look in the same style as the other buttons. Here is what it currently looks like:
+
+![select unstyled](doc-images/select-unstyled.png "select unstyled")
+
+The select is in the markup at the top of the menu. The options get filled in with JavaScript:
+
+```htm
+<!-- module3/public/index.html -->
+<section id="menu">
+  <div><select id="year-select"></select></div>
+  ...
+</section>
+```
+
+Just like with other form inputs, will put these styles in `app.src.css` so all selects on the site can have a consistent look & feel.
+
+As a first attempt, simply add `select` to the form inputs section:
+
+```css
+/* module3/src/app.src.css */
+form input:not([type=submit]):not([type=checkbox]),
+  form textarea,
+  select {
+    @apply p-1 w-full rounded text-lg mb-2
+           ring ring-gray-400
+         placeholder:text-gray-300 placeholder:font-normal
+         focus:bg-yellow-50 focus:outline-none focus:ring-yellow-400;
+  }
+```
+
+Sort of but not quite:
+
+![select wip](doc-images/select-wip.png "select wip")
+
+![select wip expanded](doc-images/select-wip-expanded.png "select wip expanded")
+
+It has some of what we want, but also want to do some things different. To achieve this, extract a new custom class `.input-base`. Copy all the form input styles except yellow focus ring, and then use the new `input-base` class in the apply section of form inputs. Tailwind will look at `input-base` used in the `@apply`, and copy all the styles to it.
+
+Then we can specify `select` and apply styles only from input-base. Then get rid of ring on select element with `ring-0` and add a border and remove outline:
+
+```css
+/* module3/src/app.src.css */
+@layer base {
+  /* common styles for all form inputs */
+  .input-base {
+    @apply p-1 w-full text-lg
+           ring ring-gray-400
+           mb-2 rounded
+           placeholder:text-gray-300 placeholder:font-normal;
+  }
+
+  form input:not([type=submit]):not([type=checkbox]),
+  form textarea {
+    @apply input-base
+         focus:bg-yellow-50 focus:outline-none focus:ring-yellow-400;
+  }
+
+  select {
+    @apply input-base ring-0 border focus:ring-0 outline-none;
+  }
+
+  .button {
+    @apply p-2 border border-gray-500 rounded my-1
+         bg-blue-800 font-bold text-white hover:bg-blue-900
+         disabled:bg-gray-300 disabled:text-gray-400 disabled:hover:bg-gray-300
+         disabled:cursor-not-allowed;
+  }
+}
+```
+
+Now the select looks like this, it's almost done:
+
+![select almost done](doc-images/select-almost-done.png "select almost done")
+
+But the text is right-aligned whereas all button text is centered. This looks weird so want to make the select text also centered, but not necessarily for all selects, it's just this particular placement of the select with the other header buttons.
+
+In this case, will add the text-centered class in the markup for the select, to only affect this particular element:
+
+```htm
+<!-- module3/public/index.html -->
+<section id="menu">
+  <div><select id="year-select" class="text-center"></select></div>
+  ...
+</section>
+```
+
+![select centered](doc-images/select-centered.png "select centered")
+
+Also want to style the select options. These are added dynamically via JavaScript (provided by instructor):
+
+```javascript
+// module3/src/results.js
+async function fillSelect() {
+
+  // Fill the year dropdown on first call (Always All and all years)
+  if (yearSelect.options.length === 0) {
+    const years = await api.getYears();
+    for (year of ["All Years", ...years]) {
+      yearSelect.add(new Option(year, year == "All Years" ? null : Number(year)));
+    }
+  }
+}
+```
+
+Rather than attempting to add a class in JavaScript, specify another section in the base styles of `app.src.css` to style only the options in the header select:
+
+```css
+.input-base {
+  @apply p-1 w-full text-lg
+          ring ring-gray-400
+          mb-2 rounded
+          placeholder:text-gray-300 placeholder:font-normal;
+}
+
+form input:not([type=submit]):not([type=checkbox]),
+form textarea {
+  @apply input-base
+        focus:bg-yellow-50 focus:outline-none focus:ring-yellow-400;
+}
+
+select {
+  @apply input-base ring-0 border focus:ring-0 outline-none;
+}
+
+header select > option {
+  @apply text-lg font-bold p-2;
+}
+```
+
+For me on Chrome, these styles have no effect, the options still display as before. Known issue: https://stackoverflow.com/questions/28974069/css-dropdown-option-text-color-not-working-on-mac-os-x
+
+### Validation States
