@@ -725,9 +725,15 @@ header select > option{
   }
 }
 
-@media (min-width: 1536px){
+@media (min-width: 2560px){
   .container{
-    max-width: 1536px;
+    max-width: 2560px;
+  }
+}
+
+@media (min-width: 3000px){
+  .container{
+    max-width: 3000px;
   }
 }
 
@@ -877,6 +883,10 @@ header select > option{
   padding: 1rem;
 }
 
+.p-standard{
+  padding: 1.25rem;
+}
+
 .px-2{
   padding-left: 0.5rem;
   padding-right: 0.5rem;
@@ -926,14 +936,14 @@ header select > option{
   -webkit-line-clamp: 3;
 }
 
-.hover\:bg-gray-100:hover{
-  --tw-bg-opacity: 1;
-  background-color: rgb(243 244 246 / var(--tw-bg-opacity));
-}
-
 .hover\:bg-green-900:hover{
   --tw-bg-opacity: 1;
   background-color: rgb(20 83 45 / var(--tw-bg-opacity));
+}
+
+.hover\:bg-primary-light:hover{
+  --tw-bg-opacity: 1;
+  background-color: rgb(218 230 233 / var(--tw-bg-opacity));
 }
 
 .hover\:bg-slate-500:hover{
@@ -968,5 +978,17 @@ header select > option{
 @media (min-width: 1024px){
   .lg\:grid-cols-2{
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 2560px){
+  .\32xl\:grid-cols-5{
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 3000px){
+  .huge\:grid-cols-6{
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 }

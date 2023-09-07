@@ -26,6 +26,10 @@
     - [Styling Select Elements](#styling-select-elements)
     - [Validation States](#validation-states)
   - [Customizing TailwindCSS](#customizing-tailwindcss)
+    - [Extending the Theme](#extending-the-theme)
+    - [Customizing Responsive Breakpoints](#customizing-responsive-breakpoints)
+    - [Customizing Units](#customizing-units)
+    - [Using TailwindCSS Functions](#using-tailwindcss-functions)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -3088,3 +3092,430 @@ form input:not([type=submit]):not([type=checkbox]),
 ```
 
 ## Customizing TailwindCSS
+
+### Extending the Theme
+
+We already made some customization earlier in `tailwind.config.js` for the font:
+
+```javascript
+// module3/tailwind.config.js
+const defaultTheme = require("tailwindcss/defaultTheme")
+
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: "class",
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ["Roboto", ...defaultTheme.fontFamily.sans]
+      }
+    },
+  },
+  plugins: [
+    require("@tailwindcss/line-clamp")
+  ],
+}
+```
+
+Suppose we'd like to add a custom named color, eg:
+
+```javascript
+// module3/tailwind.config.js
+const defaultTheme = require("tailwindcss/defaultTheme")
+
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: "class",
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  theme: {
+    colors: {
+      primary: "#0000ff"
+    },
+    extend: {
+      fontFamily: {
+        sans: ["Roboto", ...defaultTheme.fontFamily.sans]
+      }
+    },
+  },
+  plugins: [
+    require("@tailwindcss/line-clamp")
+  ],
+}
+```
+
+Then use it in results.js, eg: Instead of `hover:bg-gray-100`, use `hover:bg-primary`.
+
+The problem is the tailwind build will fail - restart `npm run dev` with an error like:
+
+```
+CssSyntaxError: tailwindcss: /src/app.src.css:3:1: The `invalid:ring-red-400` class does not exist. If `invalid:ring-red-400` is a custom class, make sure it is defined within a `@layer` directive.
+```
+
+The problem is once you define `theme: { colors: { ...}` in `tailwind.config.js`, you need to specify *all* the colors, not just your new custom color. But that's not what we want to do. We just want one new custom color.
+
+Solution is to move custom color definition into `extend` section, which will just add our new color definition, but not force us to redefine all the colors:
+
+```javascript
+// module3/tailwind.config.js
+const defaultTheme = require("tailwindcss/defaultTheme")
+
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: "class",
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: "#0000ff"
+      },
+      fontFamily: {
+        sans: ["Roboto", ...defaultTheme.fontFamily.sans]
+      }
+    },
+  },
+  plugins: [
+    require("@tailwindcss/line-clamp")
+  ],
+}
+```
+
+Now given that this primary color is used in a hover effect in movie results, tailwind build generates:
+
+```css
+.hover\:bg-primary:hover{
+  --tw-bg-opacity: 1;
+  background-color: rgb(0 0 255 / var(--tw-bg-opacity));
+}
+```
+
+We can also define the -100, -200, etc variants/options of our custom color:
+
+```javascript
+// module3/tailwind.config.js
+const defaultTheme = require("tailwindcss/defaultTheme")
+
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: "class",
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          "100": "#dae6e9",
+          DEFAULT: "#0000ff",
+          "900": "#302b54"
+        }
+      },
+      fontFamily: {
+        sans: ["Roboto", ...defaultTheme.fontFamily.sans]
+      }
+    },
+  },
+  plugins: [
+    require("@tailwindcss/line-clamp")
+  ],
+}
+```
+
+Now we can use variants of our custom `primary` color, eg: `hover:bg-primary-100`
+
+```javascript
+// module3/src/results.js
+function formatFilm(film) {
+  return `<div class="h-72 overflow-hidden bg-gray-100/50 hover:bg-primary-100 rounded-lg m-1 dark:bg-gray-600/50 dark:text-white">
+    ...
+  </div>`;
+}
+```
+
+Also we're not limited to using number based options like "100", or "900", could specify any string we want such as "light" and "dark":
+
+```javascript
+// module3/tailwind.config.js
+const defaultTheme = require("tailwindcss/defaultTheme")
+
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: "class",
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          "light": "#dae6e9",
+          DEFAULT: "#0000ff",
+          "dark": "#302b54"
+        }
+      },
+      fontFamily: {
+        sans: ["Roboto", ...defaultTheme.fontFamily.sans]
+      }
+    },
+  },
+  plugins: [
+    require("@tailwindcss/line-clamp")
+  ],
+}
+```
+
+Now can use `hover:bg-primary-light`:
+
+```javascript
+// module3/src/results.js
+function formatFilm(film) {
+  return `<div class="h-72 overflow-hidden bg-gray-100/50 hover:bg-primary-light rounded-lg m-1 dark:bg-gray-600/50 dark:text-white">
+    ...
+  </div>`;
+}
+```
+
+### Customizing Responsive Breakpoints
+
+Define `screens`  in `theme...extend...` section of tailwind config. Can redefine the standard ones, and even add our own such as 2xl (that property must use quotes because it starts with a number).
+
+Note that there's no need to specify `xs` because Tailwind is mobile-first so by default, everything is extra small:
+
+```javascript
+// module3/tailwind.config.js
+const defaultTheme = require("tailwindcss/defaultTheme")
+
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: "class",
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  theme: {
+    extend: {
+      screens: {
+        sm: "768px",
+        md: "1092px",
+        lg: "1280px",
+        lx: "1920px",
+        "2xl": "2560px"
+      },
+      colors: {
+        primary: {
+          "light": "#dae6e9",
+          DEFAULT: "#0000ff",
+          "dark": "#302b54"
+        }
+      },
+      fontFamily: {
+        sans: ["Roboto", ...defaultTheme.fontFamily.sans]
+      }
+    },
+  },
+  plugins: [
+    require("@tailwindcss/line-clamp")
+  ],
+}
+```
+
+Now can use `2xl` breakpoint in html:
+
+```htm
+<div id="results" class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-5">
+  ...
+</div>
+```
+
+Generates:
+
+WHY 32xl instead of 2xl???
+
+```css
+@media (min-width: 2560px){
+  .\32xl\:grid-cols-5{
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+```
+
+Could even add something like "huge" or whatever label you want
+
+```javascript
+// module3/tailwind.config.js
+const defaultTheme = require("tailwindcss/defaultTheme")
+
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: "class",
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  theme: {
+    extend: {
+      screens: {
+        sm: "768px",
+        md: "1092px",
+        lg: "1280px",
+        lx: "1920px",
+        "2xl": "2560px",
+        huge; "3000px"
+      },
+      colors: {
+        primary: {
+          "light": "#dae6e9",
+          DEFAULT: "#0000ff",
+          "dark": "#302b54"
+        }
+      },
+      fontFamily: {
+        sans: ["Roboto", ...defaultTheme.fontFamily.sans]
+      }
+    },
+  },
+  plugins: [
+    require("@tailwindcss/line-clamp")
+  ],
+}
+```
+
+Then use it in html like:
+
+Now can use `2xl` breakpoint in html:
+
+```htm
+<div id="results" class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-5 huge:grid-cols-6">
+  ...
+</div>
+```
+
+Generates:
+
+```css
+@media (min-width: 3000px){
+  .huge\:grid-cols-6{
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+```
+
+Don't even need to re-specify the existing breakpoints like `sm`, `md`, etc. Could just add your own, then Tailwind will use the predefined ones, plus your custom ones:
+
+```javascript
+theme: {
+    extend: {
+      screens: {
+        "2xl": "2560px",
+        huge: "3000px"
+      },
+      colors: {
+        primary: {
+          "light": "#dae6e9",
+          DEFAULT: "#0000ff",
+          "dark": "#302b54"
+        }
+      },
+      fontFamily: {
+        sans: ["Roboto", ...defaultTheme.fontFamily.sans]
+      }
+    },
+  },
+  ...
+```
+
+### Customizing Units
+
+We've been using built-in Tailwind units.
+
+Eg: `p-2` === 0.5rem === 80px (given base font size of 1rem === 16px).
+
+To customize this, use `spacing`. For example, notice there's no `p-30` or 15 built into Tailwind, we can add spacings that don't exist:
+
+```javascript
+theme: {
+    extend: {
+      spacing: {
+        "15": "3.75rem",
+        "30": "7.5rem"
+      },
+      screens: {
+        "2xl": "2560px",
+        huge: "3000px"
+      },
+      colors: {
+        primary: {
+          "light": "#dae6e9",
+          DEFAULT: "#0000ff",
+          "dark": "#302b54"
+        }
+      },
+      fontFamily: {
+        sans: ["Roboto", ...defaultTheme.fontFamily.sans]
+      }
+    },
+  },
+  ...
+```
+
+Now we can use in html for example `p-15` or `p-30`, and it shows up in intellisense:
+
+```htm
+<div id="site-name" class="text-2xl font-bold text-amber-900 p-15 whitespace-nowrap">
+  <a href="/"><i class="fas fa-film"></i> The Bechdel Test</a>
+</div>
+```
+
+Generates:
+
+```css
+.p-15{
+  padding: 3.75rem;
+}
+```
+
+Not limited to numeric labels for spacing, can use whatever text you want, eg:
+
+```javascript
+theme: {
+    extend: {
+      spacing: {
+        "15": "3.75rem",
+        "30": "7.5rem",
+        standard: "1.25rem"
+      },
+      ...
+```
+
+Now can use it in html:
+
+```htm
+<div id="site-name" class="text-2xl font-bold text-amber-900 p-standard whitespace-nowrap">
+  <a href="/"><i class="fas fa-film"></i> The Bechdel Test</a>
+</div>
+```
+
+Generates:
+
+```css
+.p-standard{
+  padding: 1.25rem;
+}
+```
+
+Note that our new custom spacing label `standard` is available on padding, margin, etc:
+
+![custom spacing](doc-images/custom-spacing.png "custom spacing")
+
+### Using TailwindCSS Functions
