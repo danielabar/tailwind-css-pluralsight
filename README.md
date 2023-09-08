@@ -30,6 +30,8 @@
     - [Customizing Responsive Breakpoints](#customizing-responsive-breakpoints)
     - [Customizing Units](#customizing-units)
     - [Using TailwindCSS Functions](#using-tailwindcss-functions)
+    - [Creating Your Own Theme](#creating-your-own-theme)
+    - [Sharing a Base Theme](#sharing-a-base-theme)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -3519,3 +3521,209 @@ Note that our new custom spacing label `standard` is available on padding, margi
 ![custom spacing](doc-images/custom-spacing.png "custom spacing")
 
 ### Using TailwindCSS Functions
+
+Let's add to our base styles in `app.src.css`. For example, native css supports `calc` function:
+
+```css
+/* module3/src/app.src.css */
+#container {
+  min-height: calc(1000px - 250px);
+}
+```
+
+But instead of for example `250px`, would like to use one of the existing values from Tailwind? In this case, use `theme` function. Pass in a string where the value of this string is defined in `tailwind.config.js` in `theme: { extend: {...} }`
+
+```css
+/* module3/src/app.src.css */
+#container {
+  min-height: calc(1000px - theme("spacing.30"));
+}
+```
+
+Recall `tailwind.config.js` has:
+
+```javascript
+// module3/tailwind.config.js
+module.exports = {
+  ...
+  theme: {
+    extend: {
+      spacing: {
+        "15": "3.75rem",
+        "30": "7.5rem",
+        standard: "1.25rem"
+      },
+      screens: {
+        "2xl": "2560px",
+        huge: "3000px"
+      },
+      colors: {
+        primary: {
+          "light": "#dae6e9",
+          DEFAULT: "#0000ff",
+          "dark": "#302b54"
+        }
+      },
+      fontFamily: {
+        sans: ["Roboto", ...defaultTheme.fontFamily.sans]
+      }
+    },
+  },
+  ...
+}
+```
+
+So `spacing.30` === 7.5rem
+
+Tailwind also has a `screen` function to be used in media queries instead of css syntax. Pass in the size you want to target from theme: extend: screens:
+
+```css
+/* target screens that are equal to or greater than `huge` in width */
+@media screen(huge) {
+  #container {
+    min-height: calc(1000px - theme("spacing.30"));
+  }
+}
+```
+
+Recall we have a div with id of container in markup:
+
+```htm
+<!-- module3/public/index.html -->
+<div id="container" class="container bg-gray-100 mx-auto">
+  ...
+</div>
+```
+
+Generates:
+
+```css
+@media (min-width: 3000px) {
+  #container {
+    min-height: calc(1000px - 7.5rem);
+  }
+}
+```
+
+### Creating Your Own Theme
+
+[Docs](https://tailwindcss.com/docs/theme)
+
+The default theme provided by Tailwind is just a suggestion.
+
+To get started, comment out the entire `extend` section of `tailwind.config.js` because we will no longer be extending the default theme provided by Tailwind. Instead, we will define our own from scratch.
+
+Need to define 3 core sections of a theme: spacing, colors, and screens.
+
+Need to define everything because taking over the theme rather than extending existing default.
+
+Suppose we don't want to work with numeric values for spacing, instead, could define string values like `thin` and `thick`.
+
+Can also specify all your own colors.
+
+Essentially can create entirely your own utility classes, defining your own language.
+
+But that's not enough, also need to understand concept of [core plugins](https://tailwindcss.com/docs/theme#core-plugins).
+
+```javascript
+const defaultTheme = require("tailwindcss/defaultTheme")
+
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: "class",
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  theme: {
+    spacing: {
+      thin: "2px",
+      thick: "8px"
+    },
+    colors: {
+      default: "#ff8833",
+      highlight: {
+        DEFAULT: "#00FFFF",
+        bright: "#80FFFF",
+        dark: "#008080"
+      }
+    },
+    screens: {},
+    fontSize: {
+      normal: "14px",
+      small: "12px",
+      large: "24px"
+    }
+  },
+  plugins: [
+    require("@tailwindcss/line-clamp")
+  ],
+}
+```
+
+Given something like the above, could use utility classes like `font-normal`, `font-small`, etc.
+
+Can use whatever units you want - px, rem, etc.
+
+At this point, the tailwind build `npm run dev` will fail because our markup contains for example `text-2xl` which no longer exists.
+
+i.e. it's A LOT OF WORK to build your own theme from scratch.
+
+Much easier to `extend` Tailwind's default theme, so that all the existing utility classes will work, then just add your own. So taking above theme, remove it and move the custom styles to the extend section:
+
+```javascript
+// module3/tailwind.config.js
+const defaultTheme = require("tailwindcss/defaultTheme")
+
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: "class",
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  theme: {
+    extend: {
+      spacing: {
+        "15": "3.75rem",
+        "30": "7.5rem",
+        standard: "1.25rem",
+        thin: "2px",
+        thick: "8px"
+      },
+      screens: {
+        "2xl": "2560px",
+        huge: "3000px"
+      },
+      colors: {
+        primary: {
+          "light": "#dae6e9",
+          DEFAULT: "#0000ff",
+          "dark": "#302b54"
+        },
+        default: "#ff8833",
+        highlight: {
+          DEFAULT: "#00FFFF",
+          bright: "#80FFFF",
+          dark: "#008080"
+        }
+      },
+      fontSize: {
+        normal: "14px",
+        small: "12px",
+        large: "24px"
+      },
+      fontFamily: {
+        sans: ["Roboto", ...defaultTheme.fontFamily.sans]
+      }
+    },
+  },
+  plugins: [
+    require("@tailwindcss/line-clamp")
+  ],
+}
+```
+
+Now for example in `app.src.css`, could use utility classes such as `text-small` or `text-large` because we added these custom definitions in `tailwind.config.js`
+
+### Sharing a Base Theme

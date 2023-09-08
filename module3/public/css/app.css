@@ -466,6 +466,12 @@ form label{
   font-weight: 700;
 }
 
+/* @media screen(huge) {
+    #container {
+      min-height: calc(1000px - theme("spacing.30"));
+    }
+  } */
+
 form input:not([type=submit]):not([type=checkbox]),
   form textarea{
   margin-bottom: 0.5rem;
