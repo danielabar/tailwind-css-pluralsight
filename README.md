@@ -32,6 +32,11 @@
     - [Using TailwindCSS Functions](#using-tailwindcss-functions)
     - [Creating Your Own Theme](#creating-your-own-theme)
     - [Sharing a Base Theme](#sharing-a-base-theme)
+    - [Useful Configuration Properties](#useful-configuration-properties)
+      - [Prefix](#prefix)
+      - [Separator](#separator)
+      - [Important](#important)
+      - [corePlugins](#coreplugins)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -3727,3 +3732,317 @@ module.exports = {
 Now for example in `app.src.css`, could use utility classes such as `text-small` or `text-large` because we added these custom definitions in `tailwind.config.js`
 
 ### Sharing a Base Theme
+
+i.e. including a common theme in multiple projects.
+
+Remove `colors` and `fontFamily` settings from `tailwind.config.js` and place in new custom theme file: `module3/src/bechdel.theme.js`
+
+```javascript
+// module3/src/bechdel.theme.js
+const defaultTheme = require("tailwindcss/defaultTheme")
+
+module.exports = {
+  theme: {
+    extends: {
+      colors: {
+        primary: {
+          "light": "#dae6e9",
+          DEFAULT: "#0000ff",
+          "dark": "#302b54"
+        },
+        default: "#ff8833",
+        highlight: {
+          DEFAULT: "#00FFFF",
+          bright: "#80FFFF",
+          dark: "#008080"
+        }
+      },
+      fontFamily: {
+        sans: ["Roboto", ...defaultTheme.fontFamily.sans]
+      }
+    }
+  }
+}
+```
+
+Now the custom theme `bechdel.theme.js` can be used in any other project by simply including it in `tailwid.config.js` using the `presets` setting. Which takes an array of objects that will get merged in with tailwind object:
+
+```javascript
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: "class",
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  theme: {
+    extend: {
+      spacing: {
+        "15": "3.75rem",
+        "30": "7.5rem",
+        standard: "1.25rem",
+        thin: "2px",
+        thick: "8px"
+      },
+      screens: {
+        "2xl": "2560px",
+        huge: "3000px"
+      },
+      fontSize: {
+        normal: "14px",
+        small: "12px",
+        large: "24px"
+      }
+    },
+  },
+  plugins: [
+    require("@tailwindcss/line-clamp")
+  ],
+  presets: [
+    require("./src/bechdel.theme")
+  ]
+}
+```
+
+Run the build with `npm run dev`.
+
+Then verify that for example `thick` and `thin` styles are available:
+
+![custom theme thin thick](doc-images/custom-theme-thin-thick.png "custom theme thin thick")
+
+Can use for example `p-thin` to specify padding of 2px:
+
+```htm
+<div id="results" class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-5 huge:grid-cols-6 p-thin">
+  ...
+</div>
+```
+
+Can use multiple `presets` because its an array.
+
+### Useful Configuration Properties
+
+Other odds and ends you can specify in `tailwind.config.js`:
+
+#### Prefix
+
+`prefix` to namespace all classes. Useful when integrating with another library (eg: Bootstrap), and want to ensure that anything prefixed with for example "my-" is coming from Tailwind, i.e. avoid collision
+
+```javascript
+// module3/tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  prefix: "my-",
+  darkMode: "class",
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  // ...
+}
+```
+
+But at this point, the tailwind build will fail with: reason: 'The `font-bold` class does not exist.
+
+#### Separator
+
+`separator` is a matter of personal preference. It defaults to dash `-`
+
+```javascript
+// module3/tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  separator: "-",
+  darkMode: "class",
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  // ...
+}
+```
+
+Eg: `grid-cols-1`: The three elements of the utility class are separated by a dash character. The three elements are:
+
+
+1. **grid**: This is the base class that indicates it's a utility related to grid layout.
+2. **cols**: This is the variant class that specifies the property you want to apply to the grid, which is the number of columns in this case.
+3. **1**: This is the value or argument passed to the "cols" variant, indicating that you want the grid to have 1 column. It's the numerical value that determines the behavior of the utility class.
+
+Suppose your team prefers underscores to dashes in css class names, then could specify:
+
+```javascript
+// module3/tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  separator: "_",
+  darkMode: "class",
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  // ...
+}
+```
+
+Now all the Tailwind classes would be like `grid_cols_1`.
+
+#### Important
+
+By default, this is false:
+
+```javascript
+// module3/tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  important: false,
+  darkMode: "class",
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  // ...
+}
+```
+
+Setting it to true will add `!important` to all the utility classes used in the project!
+
+```javascript
+// module3/tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  important: true,
+  darkMode: "class",
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  // ...
+}
+```
+
+Example of generated css:
+
+```css
+/* module3/public/css/app.css */
+.inline-block{
+  display: inline-block !important;
+}
+
+.flex{
+  display: flex !important;
+}
+
+.grid{
+  display: grid !important;
+}
+
+.hidden{
+  display: none !important;
+}
+
+.h-72{
+  height: 18rem !important;
+}
+
+.w-24{
+  width: 6rem !important;
+}
+/* ... */
+```
+
+A better approach: If you want to use Tailwind for only a portion of the project. Example - if only want to use it in `container` section of index.html, but not footer or dialog:
+
+![only container](doc-images/only-container.png "only container")
+
+Instead of specifying `true` for `important` config property, specify a selector prefix, in this case id of container element where we only want Tailwind to apply:
+
+```javascript
+// module3/tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  important: "#container",
+  darkMode: "class",
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  // ...
+}
+```
+
+Now generates for example:
+
+```css
+/* module3/public/css/app.css */
+#container :is(.inline-block){
+  display: inline-block;
+}
+
+#container :is(.flex){
+  display: flex;
+}
+
+#container :is(.grid){
+  display: grid;
+}
+
+#container :is(.hidden){
+  display: none;
+}
+
+#container :is(.h-72){
+  height: 18rem;
+}
+
+#container :is(.w-24){
+  width: 6rem;
+}
+
+#container :is(.w-48){
+  width: 12rem;
+}
+/* ... */
+```
+
+#### corePlugins
+
+[Docs](https://tailwindcss.com/docs/theme#core-plugins)
+
+For example, to turn off the css reset that Tailwind applies:
+
+```javascript
+// module3/tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: "class",
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  corePlugins: {
+    preflight: false
+  }
+  // ...
+}
+```
+
+Can also disable other core plugins, eg: if don't want anyone using `accentColor` or `float` in project:
+
+```javascript
+// module3/tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: "class",
+  content: [
+    "./src/*.{html,js}",
+    "./public/index.html"
+  ],
+  corePlugins: {
+    preflight: false,
+    accentColor: false,
+    float: false
+  }
+  // ...
+}
+```
